@@ -2,209 +2,893 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARt Viewer - PINUS Hack 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ArtSpace - Virtual Art Gallery</title>
     
-    <!-- A-Frame Library -->
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- AR.js Library -->
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- Model Viewer -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
     
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --gold: #d4af37;
+            --light: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
         }
         
-        /* UI Overlay */
-        #ui-overlay {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .header-badge {
+            background: var(--gold);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .hero p {
+            opacity: 0.8;
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .ar-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .ar-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Gallery Grid */
+        .gallery-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: var(--primary);
+        }
+        
+        .filter-pills {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            justify-content: center;
-            padding: 10px;
         }
         
-        .art-btn {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #333;
+        .pill {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .pill:hover, .pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        
+        /* Artwork Card */
+        .artwork-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        
+        .artwork-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
+        
+        .artwork-preview {
+            position: relative;
+            height: 280px;
+            background: linear-gradient(145deg, #f8f8f8 0%, #e8e8e8 100%);
+        }
+        
+        .artwork-preview model-viewer {
+            width: 100%;
+            height: 100%;
+            --poster-color: transparent;
+        }
+        
+        .artwork-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--accent);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .ar-available {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .ar-available svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .artwork-info {
+            padding: 25px;
+        }
+        
+        .artwork-artist {
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .artwork-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--primary);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+        
+        .artwork-dimensions {
+            display: flex;
+            gap: 20px;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            margin: 15px 0;
+        }
+        
+        .dimension {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .dimension-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .dimension-label {
+            font-size: 11px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        
+        .artwork-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .artwork-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
             border-radius: 12px;
-            padding: 12px 20px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
         }
         
-        .art-btn:hover {
-            background: #333;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
             color: white;
-            transform: translateY(-2px);
         }
         
-        .art-btn.active {
-            background: #4CAF50;
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--primary);
             color: white;
-            border-color: #4CAF50;
         }
         
-        /* Instructions overlay */
-        #instructions {
+        .btn-secondary:hover {
+            background: var(--secondary);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
             z-index: 1000;
-            text-align: center;
-            max-width: 90%;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
         
-        #instructions h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
+        .modal-overlay.active {
+            display: flex;
         }
         
-        #instructions p {
-            margin: 0;
-            font-size: 14px;
-            opacity: 0.9;
+        .modal {
+            background: white;
+            border-radius: 24px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
-        /* Loading indicator */
-        #loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: var(--primary);
+        }
+        
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--accent);
             color: white;
-            padding: 20px 40px;
-            border-radius: 10px;
-            z-index: 2000;
+        }
+        
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-viewer {
+            height: 400px;
+            background: linear-gradient(145deg, #f8f8f8 0%, #e8e8e8 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        .modal-viewer model-viewer {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .modal-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .detail-card {
+            background: #f8f8f8;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .detail-card h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+        }
+        
+        .detail-card p {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .dimension-visual {
+            background: var(--primary);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 20px;
+        }
+        
+        .dimension-visual h4 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        
+        .dimension-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .dim-item {
+            text-align: center;
+        }
+        
+        .dim-value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .dim-unit {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        .dim-label {
+            font-size: 12px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+        
+        .dim-separator {
+            font-size: 24px;
+            opacity: 0.3;
+        }
+        
+        .modal-actions {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn-ar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 2;
+        }
+        
+        .btn-ar:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .lidar-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        .footer-text {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        
+        .footer-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+        
+        /* Custom Model Viewer Styles */
+        model-viewer {
+            --poster-color: transparent;
+        }
+        
+        model-viewer::part(default-ar-button) {
             display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Instructions -->
-    <div id="instructions">
-        <h2>ARt Viewer</h2>
-        <p>Point your camera at the Hiro marker to see the artwork</p>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🎨</div>
+                ArtSpace
+            </div>
+            <div class="header-badge">PINUS Hack 2026</div>
+        </div>
+    </header>
+    
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Experience Art in Your Space</h1>
+        <p>Browse our curated collection and visualize artworks in your room using AR technology</p>
+        <div class="ar-badge">
+            <span class="dot"></span>
+            LiDAR & AR Enabled
+        </div>
+    </section>
+    
+    <!-- Gallery -->
+    <section class="gallery-section">
+        <div class="section-header">
+            <h2 class="section-title">Featured Collection</h2>
+            <div class="filter-pills">
+                <span class="pill active">All</span>
+                <span class="pill">Sculptures</span>
+                <span class="pill">Wall Art</span>
+                <span class="pill">Modern</span>
+            </div>
+        </div>
+        
+        <div class="gallery-grid" id="gallery">
+            <!-- Artwork cards will be inserted here by JavaScript -->
+        </div>
+    </section>
+    
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Artwork Details</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-viewer">
+                    <model-viewer
+                        id="modal-viewer"
+                        src=""
+                        alt="3D Artwork"
+                        auto-rotate
+                        camera-controls
+                        shadow-intensity="1"
+                        exposure="0.8"
+                        ar
+                        ar-modes="webxr scene-viewer quick-look"
+                        ar-scale="fixed"
+                    >
+                    </model-viewer>
+                </div>
+                
+                <div class="modal-details">
+                    <div class="detail-card">
+                        <h4>Artist</h4>
+                        <p id="modal-artist">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Medium</h4>
+                        <p id="modal-medium">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Year</h4>
+                        <p id="modal-year">-</p>
+                    </div>
+                    <div class="detail-card">
+                        <h4>Price</h4>
+                        <p id="modal-price">-</p>
+                    </div>
+                </div>
+                
+                <div class="dimension-visual">
+                    <h4>Artwork Dimensions</h4>
+                    <div class="dimension-display">
+                        <div class="dim-item">
+                            <div class="dim-value" id="modal-width">-</div>
+                            <div class="dim-unit">cm</div>
+                            <div class="dim-label">Width</div>
+                        </div>
+                        <div class="dim-separator">×</div>
+                        <div class="dim-item">
+                            <div class="dim-value" id="modal-height">-</div>
+                            <div class="dim-unit">cm</div>
+                            <div class="dim-label">Height</div>
+                        </div>
+                        <div class="dim-separator">×</div>
+                        <div class="dim-item">
+                            <div class="dim-value" id="modal-depth">-</div>
+                            <div class="dim-unit">cm</div>
+                            <div class="dim-label">Depth</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ar" onclick="activateAR()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                        <path d="M12 18a6 6 0 100-12 6 6 0 000 12z"/>
+                        <path d="M12 14a2 2 0 100-4 2 2 0 000 4z"/>
+                    </svg>
+                    View in AR
+                    <span class="lidar-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                        </svg>
+                        LiDAR
+                    </span>
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
     </div>
     
-    <!-- Loading indicator -->
-    <div id="loading">Loading artwork...</div>
-    
-    <!-- Artwork selection buttons -->
-    <div id="ui-overlay">
-        <button class="art-btn active" onclick="switchArtwork('decor_wall')">Decor Wall</button>
-        <button class="art-btn" onclick="switchArtwork('cube')">Demo Cube</button>
-    </div>
-    
-    <!-- AR Scene -->
-    <a-scene
-        embedded
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-        vr-mode-ui="enabled: false"
-        renderer="logarithmicDepthBuffer: true; precision: medium;"
-    >
-        <!-- Asset Management -->
-        <a-assets>
-            <a-asset-item id="decor-wall-model" src="models/decor_wall.glb"></a-asset-item>
-        </a-assets>
-        
-        <!-- Hiro Marker -->
-        <a-marker preset="hiro" id="marker">
-            <!-- 3D Model Container -->
-            <a-entity
-                id="artwork"
-                gltf-model="#decor-wall-model"
-                scale="0.1 0.1 0.1"
-                position="0 0 0"
-                rotation="-90 0 0"
-            ></a-entity>
-            
-            <!-- Fallback cube (hidden by default) -->
-            <a-box
-                id="demo-cube"
-                color="#4CAF50"
-                scale="0.3 0.3 0.3"
-                position="0 0.15 0"
-                visible="false"
-            >
-                <a-animation
-                    attribute="rotation"
-                    to="0 360 0"
-                    dur="3000"
-                    easing="linear"
-                    repeat="indefinite"
-                ></a-animation>
-            </a-box>
-        </a-marker>
-        
-        <!-- Camera -->
-        <a-entity camera></a-entity>
-    </a-scene>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-brand">ArtSpace</div>
+        <p class="footer-text">Track 4: AI for Virtual Viewing & Decision Support | PINUS Hack 2026</p>
+    </footer>
     
     <script>
-        // Artwork switching functionality
-        function switchArtwork(artworkId) {
-            const artwork = document.getElementById('artwork');
-            const demoCube = document.getElementById('demo-cube');
-            const buttons = document.querySelectorAll('.art-btn');
-            const loading = document.getElementById('loading');
+        // Artwork data
+        const artworks = [
+            {
+                id: 1,
+                title: "Geometric Harmony",
+                artist: "Studio Moderne",
+                medium: "Wood & Metal Sculpture",
+                year: "2024",
+                price: "$2,450",
+                dimensions: { width: 45, height: 60, depth: 15 },
+                model: "models/decor_wall.glb",
+                badge: "Featured",
+                category: "wall-art"
+            },
+            {
+                id: 2,
+                title: "Abstract Flow",
+                artist: "Elena Vasquez",
+                medium: "Bronze Sculpture",
+                year: "2023",
+                price: "$4,800",
+                dimensions: { width: 30, height: 45, depth: 25 },
+                model: "models/decor_wall.glb",
+                badge: "New",
+                category: "sculptures"
+            },
+            {
+                id: 3,
+                title: "Urban Reflections",
+                artist: "Marcus Chen",
+                medium: "Mixed Media",
+                year: "2024",
+                price: "$1,890",
+                dimensions: { width: 80, height: 60, depth: 5 },
+                model: "models/decor_wall.glb",
+                badge: "Popular",
+                category: "modern"
+            },
+            {
+                id: 4,
+                title: "Nature's Whisper",
+                artist: "Aria Woods",
+                medium: "Ceramic & Glass",
+                year: "2023",
+                price: "$3,200",
+                dimensions: { width: 35, height: 50, depth: 20 },
+                model: "models/decor_wall.glb",
+                badge: null,
+                category: "sculptures"
+            }
+        ];
+        
+        // Current selected artwork
+        let currentArtwork = null;
+        
+        // Render gallery
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = artworks.map(art => `
+                <div class="artwork-card" onclick="openModal(${art.id})">
+                    <div class="artwork-preview">
+                        ${art.badge ? `<span class="artwork-badge">${art.badge}</span>` : ''}
+                        <span class="ar-available">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            AR Ready
+                        </span>
+                        <model-viewer
+                            src="${art.model}"
+                            alt="${art.title}"
+                            auto-rotate
+                            rotation-per-second="30deg"
+                            camera-controls
+                            disable-zoom
+                            interaction-prompt="none"
+                            shadow-intensity="0.5"
+                        ></model-viewer>
+                    </div>
+                    <div class="artwork-info">
+                        <div class="artwork-artist">${art.artist}</div>
+                        <h3 class="artwork-title">${art.title}</h3>
+                        <div class="artwork-dimensions">
+                            <div class="dimension">
+                                <div class="dimension-value">${art.dimensions.width}</div>
+                                <div class="dimension-label">Width (cm)</div>
+                            </div>
+                            <div class="dimension">
+                                <div class="dimension-value">${art.dimensions.height}</div>
+                                <div class="dimension-label">Height (cm)</div>
+                            </div>
+                            <div class="dimension">
+                                <div class="dimension-value">${art.dimensions.depth}</div>
+                                <div class="dimension-label">Depth (cm)</div>
+                            </div>
+                        </div>
+                        <div class="artwork-price">${art.price}</div>
+                        <div class="artwork-actions">
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); openModal(${art.id})">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                View in AR
+                            </button>
+                            <button class="btn btn-secondary" onclick="event.stopPropagation(); openModal(${art.id})">
+                                Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Open modal
+        function openModal(artworkId) {
+            currentArtwork = artworks.find(a => a.id === artworkId);
+            if (!currentArtwork) return;
             
-            // Update button states
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.getElementById('modal-title').textContent = currentArtwork.title;
+            document.getElementById('modal-artist').textContent = currentArtwork.artist;
+            document.getElementById('modal-medium').textContent = currentArtwork.medium;
+            document.getElementById('modal-year').textContent = currentArtwork.year;
+            document.getElementById('modal-price').textContent = currentArtwork.price;
+            document.getElementById('modal-width').textContent = currentArtwork.dimensions.width;
+            document.getElementById('modal-height').textContent = currentArtwork.dimensions.height;
+            document.getElementById('modal-depth').textContent = currentArtwork.dimensions.depth;
             
-            // Show loading
-            loading.style.display = 'block';
+            const viewer = document.getElementById('modal-viewer');
+            viewer.src = currentArtwork.model;
             
-            if (artworkId === 'cube') {
-                // Show demo cube, hide 3D model
-                artwork.setAttribute('visible', 'false');
-                demoCube.setAttribute('visible', 'true');
-                loading.style.display = 'none';
-            } else if (artworkId === 'decor_wall') {
-                // Show decor wall model
-                artwork.setAttribute('visible', 'true');
-                artwork.setAttribute('gltf-model', '#decor-wall-model');
-                demoCube.setAttribute('visible', 'false');
-                loading.style.display = 'none';
+            document.getElementById('modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentArtwork = null;
+        }
+        
+        // Activate AR
+        function activateAR() {
+            const viewer = document.getElementById('modal-viewer');
+            if (viewer.canActivateAR) {
+                viewer.activateAR();
+            } else {
+                alert('AR is not supported on this device. Please try on a mobile device with AR capabilities.');
             }
         }
         
-        // Hide instructions after 5 seconds
-        setTimeout(() => {
-            const instructions = document.getElementById('instructions');
-            instructions.style.opacity = '0';
-            instructions.style.transition = 'opacity 1s ease';
-            setTimeout(() => {
-                instructions.style.display = 'none';
-            }, 1000);
-        }, 5000);
+        // Close modal on overlay click
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
         
-        // Log when marker is found/lost
-        const marker = document.getElementById('marker');
-        marker.addEventListener('markerFound', () => {
-            console.log('Marker found!');
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
         });
-        marker.addEventListener('markerLost', () => {
-            console.log('Marker lost');
+        
+        // Filter functionality
+        document.querySelectorAll('.pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                // Add filter logic here if needed
+            });
         });
+        
+        // Initialize
+        renderGallery();
     </script>
 </body>
 </html>
