@@ -25,6 +25,7 @@
             --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --heart: #ff4757;
         }
         
         * {
@@ -110,6 +111,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .header-btn:hover {
@@ -123,6 +125,77 @@
         
         .header-btn.import-btn:hover {
             box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4);
+        }
+        
+        .header-btn .badge-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--heart);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        /* Search Bar */
+        .search-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 20px 0;
+        }
+        
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            background: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            align-items: center;
+        }
+        
+        .search-bar svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            font-family: inherit;
+        }
+        
+        .search-bar input::placeholder {
+            color: #aaa;
+        }
+        
+        .search-clear {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: none;
+            color: var(--text-light);
+        }
+        
+        .search-clear.visible {
+            display: block;
+        }
+        
+        .search-results-count {
+            font-size: 13px;
+            color: var(--text-light);
+            padding: 10px 0 0 10px;
         }
         
         /* Hero Section */
@@ -176,6 +249,7 @@
         .dot-blue { background: #60a5fa; }
         .dot-purple { background: #a78bfa; }
         .dot-cyan { background: #22d3ee; }
+        .dot-red { background: #f87171; }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -190,6 +264,7 @@
             display: flex;
             gap: 10px;
             border-bottom: 1px solid #ddd;
+            overflow-x: auto;
         }
         
         .tab-btn {
@@ -202,6 +277,10 @@
             cursor: pointer;
             position: relative;
             transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .tab-btn:hover {
@@ -221,6 +300,14 @@
             height: 3px;
             background: var(--accent);
             border-radius: 3px 3px 0 0;
+        }
+        
+        .tab-btn .tab-count {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
         }
         
         .tab-content {
@@ -289,6 +376,7 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.08);
             transition: all 0.4s ease;
             cursor: pointer;
+            position: relative;
         }
         
         .artwork-card:hover {
@@ -297,8 +385,7 @@
         }
         
         .artwork-card.user-uploaded {
-            border: 2px solid var(--gradient-3);
-            border-image: var(--gradient-3) 1;
+            border: 2px solid #4facfe;
         }
         
         .artwork-preview {
@@ -325,6 +412,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            z-index: 10;
         }
         
         .artwork-badge.user-badge {
@@ -334,7 +422,7 @@
         .ar-available {
             position: absolute;
             top: 12px;
-            right: 12px;
+            right: 50px;
             background: rgba(0,0,0,0.7);
             color: white;
             padding: 6px 10px;
@@ -343,6 +431,46 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            z-index: 10;
+        }
+        
+        /* Heart/Favorite Button */
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .favorite-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #ccc;
+            transition: all 0.3s ease;
+        }
+        
+        .favorite-btn.active svg {
+            color: var(--heart);
+            fill: var(--heart);
+        }
+        
+        .favorite-btn:hover svg {
+            color: var(--heart);
         }
         
         .artwork-info {
@@ -438,6 +566,77 @@
         
         .btn-secondary:hover {
             background: var(--secondary);
+        }
+        
+        /* Shortlist Empty State */
+        .shortlist-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+        
+        .shortlist-empty svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+            color: var(--heart);
+        }
+        
+        .shortlist-empty h3 {
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .shortlist-empty p {
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        /* Compare Banner */
+        .compare-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 200;
+            box-shadow: 0 -5px 30px rgba(0,0,0,0.3);
+        }
+        
+        .compare-banner.active {
+            display: flex;
+        }
+        
+        .compare-banner-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .compare-banner-text svg {
+            width: 24px;
+            height: 24px;
+            color: var(--gold);
+        }
+        
+        .compare-banner-text span {
+            font-size: 14px;
+        }
+        
+        .compare-banner-text strong {
+            color: var(--gold);
+        }
+        
+        .compare-banner .btn {
+            flex: none;
+            padding: 12px 24px;
         }
         
         /* Import Section */
@@ -776,11 +975,7 @@
             font-weight: 500;
             color: var(--primary);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .app-badge img {
-            width: 24px;
-            height: 24px;
+            text-decoration: none;
         }
         
         /* My Artworks Section */
@@ -904,6 +1099,70 @@
         
         .size-indicator strong {
             color: var(--gold);
+        }
+        
+        /* Comparison Thumbnails in Modal */
+        .comparison-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+        }
+        
+        .comparison-section h4 {
+            font-size: 13px;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .comparison-section h4 svg {
+            width: 16px;
+            height: 16px;
+            color: #4facfe;
+        }
+        
+        .comparison-thumbnails {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .comparison-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            background: white;
+        }
+        
+        .comparison-thumb:hover {
+            border-color: #4facfe;
+            transform: scale(1.05);
+        }
+        
+        .comparison-thumb.active {
+            border-color: var(--accent);
+        }
+        
+        .comparison-thumb model-viewer {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .comparison-empty {
+            font-size: 12px;
+            color: var(--text-light);
+            text-align: center;
+            padding: 15px;
         }
         
         .modal-details {
@@ -1222,6 +1481,10 @@
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
         
+        .toast.heart {
+            background: linear-gradient(135deg, var(--heart) 0%, #ff6b6b 100%);
+        }
+        
         /* Footer */
         .footer {
             background: var(--primary);
@@ -1239,6 +1502,26 @@
         .footer-brand {
             font-family: 'Playfair Display', serif;
             font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+        
+        .no-results svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        
+        .no-results h3 {
+            font-size: 18px;
+            color: var(--primary);
             margin-bottom: 8px;
         }
         
@@ -1285,8 +1568,13 @@
             }
             
             .tab-nav {
-                overflow-x: auto;
                 padding-bottom: 10px;
+            }
+            
+            .compare-banner {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
             }
         }
         
@@ -1310,19 +1598,26 @@
             </div>
             <div class="header-actions">
                 <span class="header-badge">PINUS Hack 2026</span>
+                <button class="header-btn" onclick="switchTab('shortlist')" id="shortlist-header-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    Shortlist
+                    <span class="badge-count" id="shortlist-count" style="display: none;">0</span>
+                </button>
                 <button class="header-btn import-btn" onclick="switchTab('import')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="17 8 12 3 7 8"/>
                         <line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Import Art
+                    Import
                 </button>
                 <button class="header-btn" onclick="toggleChat()">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
-                    AI Assistant
+                    AI
                 </button>
             </div>
         </div>
@@ -1331,7 +1626,7 @@
     <!-- Hero -->
     <section class="hero">
         <h1>Experience Art in Your Space</h1>
-        <p>Browse, import, and visualize artworks in your room using AR technology with AI-powered recommendations</p>
+        <p>Browse, compare, and visualize artworks in AR with AI-powered recommendations</p>
         <div class="tech-badges">
             <span class="tech-badge">
                 <span class="dot dot-green"></span>
@@ -1343,18 +1638,40 @@
             </span>
             <span class="tech-badge">
                 <span class="dot dot-purple"></span>
-                AI Recommendations
+                AI Advisor
             </span>
             <span class="tech-badge">
-                <span class="dot dot-cyan"></span>
-                3D Scanning
+                <span class="dot dot-red"></span>
+                Compare & Shortlist
             </span>
         </div>
     </section>
     
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="search-input" placeholder="Search artworks by name, artist, style, or category..." oninput="handleSearch()">
+            <button class="search-clear" id="search-clear" onclick="clearSearch()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="search-results-count" id="search-results-count" style="display: none;"></div>
+    </div>
+    
     <!-- Tab Navigation -->
     <div class="tab-nav">
         <button class="tab-btn active" onclick="switchTab('marketplace')">Marketplace</button>
+        <button class="tab-btn" onclick="switchTab('shortlist')">
+            Shortlist
+            <span class="tab-count" id="shortlist-tab-count" style="display: none;">0</span>
+        </button>
         <button class="tab-btn" onclick="switchTab('my-artworks')">My Artworks</button>
         <button class="tab-btn" onclick="switchTab('import')">Import / Scan</button>
     </div>
@@ -1374,6 +1691,39 @@
             
             <div class="gallery-grid" id="gallery">
                 <!-- Artwork cards will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="no-results" id="no-results" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <h3>No artworks found</h3>
+                <p>Try a different search term or filter</p>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Shortlist Tab -->
+    <div class="tab-content" id="tab-shortlist">
+        <section class="gallery-section">
+            <div class="section-header">
+                <h2 class="section-title">My Shortlist</h2>
+            </div>
+            
+            <div class="gallery-grid" id="shortlist-gallery">
+                <!-- Shortlisted artworks will be inserted here -->
+            </div>
+            
+            <div class="shortlist-empty" id="shortlist-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <h3>No Shortlisted Artworks</h3>
+                <p>Click the heart icon on artworks you like to add them to your shortlist for easy comparison</p>
+                <button class="btn btn-primary" onclick="switchTab('marketplace')">
+                    Browse Artworks
+                </button>
             </div>
         </section>
     </div>
@@ -1666,6 +2016,23 @@
         </section>
     </div>
     
+    <!-- Compare Banner -->
+    <div class="compare-banner" id="compare-banner">
+        <div class="compare-banner-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span><strong id="compare-count">0</strong> artworks shortlisted. Compare them in AR!</span>
+        </div>
+        <button class="btn btn-primary" onclick="openCompareModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Compare in AR
+        </button>
+    </div>
+    
     <!-- Modal -->
     <div class="modal-overlay" id="modal">
         <div class="modal">
@@ -1691,6 +2058,25 @@
                     </model-viewer>
                     <div class="size-indicator" id="size-indicator">
                         Real Size: <strong id="real-size">-</strong>
+                    </div>
+                </div>
+                
+                <!-- Comparison Section -->
+                <div class="comparison-section" id="comparison-section">
+                    <h4>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="17 1 21 5 17 9"/>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                            <polyline points="7 23 3 19 7 15"/>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                        </svg>
+                        Quick Compare (Tap to Switch)
+                    </h4>
+                    <div class="comparison-thumbnails" id="comparison-thumbnails">
+                        <!-- Thumbnails will be inserted here -->
+                    </div>
+                    <div class="comparison-empty" id="comparison-empty" style="display: none;">
+                        Add more artworks to your shortlist to compare them here
                     </div>
                 </div>
                 
@@ -1975,22 +2361,157 @@
         // User uploaded artworks
         let userArtworks = JSON.parse(localStorage.getItem('userArtworks') || '[]');
         
+        // Shortlisted artworks (stored as IDs)
+        let shortlist = JSON.parse(localStorage.getItem('shortlist') || '[]');
+        
         // Current state
         let currentArtwork = null;
         let currentFilter = 'all';
+        let currentSearch = '';
         let uploadedFile = null;
         let uploadedFileUrl = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGallery();
+            updateShortlistUI();
+        });
+        
+        // Search functionality
+        function handleSearch() {
+            const searchInput = document.getElementById('search-input');
+            const clearBtn = document.getElementById('search-clear');
+            currentSearch = searchInput.value.trim().toLowerCase();
+            
+            if (currentSearch) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+            
+            renderGallery(currentFilter);
+        }
+        
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-clear').classList.remove('visible');
+            document.getElementById('search-results-count').style.display = 'none';
+            currentSearch = '';
+            renderGallery(currentFilter);
+        }
         
         // Tab switching
         function switchTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+            const tabBtn = document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`);
+            if (tabBtn) tabBtn.classList.add('active');
+            
+            const tabContent = document.getElementById(`tab-${tabName}`);
+            if (tabContent) tabContent.classList.add('active');
             
             if (tabName === 'my-artworks') {
                 renderMyArtworks();
+            } else if (tabName === 'shortlist') {
+                renderShortlist();
+            }
+        }
+        
+        // Shortlist functions
+        function toggleShortlist(artworkId, isUserUploaded, event) {
+            if (event) event.stopPropagation();
+            
+            const key = isUserUploaded ? `user-${artworkId}` : `art-${artworkId}`;
+            const index = shortlist.indexOf(key);
+            
+            if (index > -1) {
+                shortlist.splice(index, 1);
+                showToast('Removed from shortlist', 'heart');
+            } else {
+                shortlist.push(key);
+                showToast('Added to shortlist!', 'heart');
+            }
+            
+            localStorage.setItem('shortlist', JSON.stringify(shortlist));
+            updateShortlistUI();
+            renderGallery(currentFilter);
+            
+            if (document.getElementById('tab-shortlist').classList.contains('active')) {
+                renderShortlist();
+            }
+        }
+        
+        function isShortlisted(artworkId, isUserUploaded) {
+            const key = isUserUploaded ? `user-${artworkId}` : `art-${artworkId}`;
+            return shortlist.includes(key);
+        }
+        
+        function updateShortlistUI() {
+            const count = shortlist.length;
+            
+            // Update header badge
+            const headerCount = document.getElementById('shortlist-count');
+            if (count > 0) {
+                headerCount.textContent = count;
+                headerCount.style.display = 'flex';
+            } else {
+                headerCount.style.display = 'none';
+            }
+            
+            // Update tab count
+            const tabCount = document.getElementById('shortlist-tab-count');
+            if (count > 0) {
+                tabCount.textContent = count;
+                tabCount.style.display = 'inline';
+            } else {
+                tabCount.style.display = 'none';
+            }
+            
+            // Update compare banner
+            const banner = document.getElementById('compare-banner');
+            const compareCount = document.getElementById('compare-count');
+            if (count >= 2) {
+                banner.classList.add('active');
+                compareCount.textContent = count;
+            } else {
+                banner.classList.remove('active');
+            }
+        }
+        
+        function getShortlistedArtworks() {
+            return shortlist.map(key => {
+                if (key.startsWith('user-')) {
+                    const id = parseInt(key.replace('user-', ''));
+                    const art = userArtworks.find(a => a.id === id);
+                    return art ? { ...art, isUserUploaded: true } : null;
+                } else {
+                    const id = parseInt(key.replace('art-', ''));
+                    const art = artworks.find(a => a.id === id);
+                    return art ? { ...art, isUserUploaded: false } : null;
+                }
+            }).filter(a => a !== null);
+        }
+        
+        function renderShortlist() {
+            const gallery = document.getElementById('shortlist-gallery');
+            const emptyState = document.getElementById('shortlist-empty');
+            const shortlistedArtworks = getShortlistedArtworks();
+            
+            if (shortlistedArtworks.length === 0) {
+                gallery.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            gallery.innerHTML = shortlistedArtworks.map(art => createArtworkCard(art)).join('');
+        }
+        
+        function openCompareModal() {
+            const shortlistedArtworks = getShortlistedArtworks();
+            if (shortlistedArtworks.length > 0) {
+                openModal(shortlistedArtworks[0].id, shortlistedArtworks[0].isUserUploaded);
             }
         }
         
@@ -2052,23 +2573,25 @@
         // Drag and drop
         const dropZone = document.getElementById('drop-zone');
         
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-        
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-        
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) {
-                processFile(file);
-            }
-        });
+        if (dropZone) {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    processFile(file);
+                }
+            });
+        }
         
         // URL handling
         function handleUrlInput() {
@@ -2189,25 +2712,20 @@
             `;
         }
         
-        function showToast(message) {
+        function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').textContent = message;
-            toast.classList.add('show', 'success');
+            toast.className = 'toast show ' + type;
             
             setTimeout(() => {
-                toast.classList.remove('show', 'success');
+                toast.className = 'toast';
             }, 3000);
         }
         
-        // Render gallery
-        function renderGallery(filter = 'all') {
-            const gallery = document.getElementById('gallery');
-            const allArtworks = [...artworks, ...userArtworks];
-            const filteredArtworks = filter === 'all' 
-                ? allArtworks 
-                : allArtworks.filter(a => a.category === filter);
-            
-            gallery.innerHTML = filteredArtworks.map(art => `
+        // Create artwork card HTML
+        function createArtworkCard(art) {
+            const shortlisted = isShortlisted(art.id, art.isUserUploaded);
+            return `
                 <div class="artwork-card ${art.isUserUploaded ? 'user-uploaded' : ''}" onclick="openModal(${art.id}, ${art.isUserUploaded})">
                     <div class="artwork-preview">
                         ${art.badge ? `<span class="artwork-badge ${art.isUserUploaded ? 'user-badge' : ''}">${art.badge}</span>` : ''}
@@ -2216,8 +2734,13 @@
                                 <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
                                 <circle cx="12" cy="12" r="3"/>
                             </svg>
-                            AR Ready
+                            AR
                         </span>
+                        <button class="favorite-btn ${shortlisted ? 'active' : ''}" onclick="toggleShortlist(${art.id}, ${art.isUserUploaded}, event)">
+                            <svg viewBox="0 0 24 24" fill="${shortlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                        </button>
                         <model-viewer
                             src="${art.model}"
                             alt="${art.title}"
@@ -2261,7 +2784,47 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+        }
+        
+        // Render gallery
+        function renderGallery(filter = 'all') {
+            const gallery = document.getElementById('gallery');
+            const noResults = document.getElementById('no-results');
+            const resultsCount = document.getElementById('search-results-count');
+            const allArtworks = [...artworks, ...userArtworks];
+            
+            let filteredArtworks = filter === 'all' 
+                ? allArtworks 
+                : allArtworks.filter(a => a.category === filter);
+            
+            // Apply search filter
+            if (currentSearch) {
+                filteredArtworks = filteredArtworks.filter(a => {
+                    const searchFields = [
+                        a.title,
+                        a.artist,
+                        a.style,
+                        a.category,
+                        a.medium,
+                        ...a.tags
+                    ].join(' ').toLowerCase();
+                    return searchFields.includes(currentSearch);
+                });
+                
+                resultsCount.textContent = `Found ${filteredArtworks.length} artwork${filteredArtworks.length !== 1 ? 's' : ''}`;
+                resultsCount.style.display = 'block';
+            } else {
+                resultsCount.style.display = 'none';
+            }
+            
+            if (filteredArtworks.length === 0) {
+                gallery.innerHTML = '';
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+                gallery.innerHTML = filteredArtworks.map(art => createArtworkCard(art)).join('');
+            }
         }
         
         // Render my artworks
@@ -2276,71 +2839,87 @@
             }
             
             emptyState.style.display = 'none';
-            
-            gallery.innerHTML = userArtworks.map(art => `
-                <div class="artwork-card user-uploaded" onclick="openModal(${art.id}, true)">
-                    <div class="artwork-preview">
-                        <span class="artwork-badge user-badge">${art.badge}</span>
-                        <span class="ar-available">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
-                            AR Ready
-                        </span>
-                        <model-viewer
-                            src="${art.model}"
-                            alt="${art.title}"
-                            auto-rotate
-                            rotation-per-second="30deg"
-                            camera-controls
-                            disable-zoom
-                            interaction-prompt="none"
-                            shadow-intensity="0.5"
-                        ></model-viewer>
-                    </div>
-                    <div class="artwork-info">
-                        <div class="artwork-artist">${art.artist}</div>
-                        <h3 class="artwork-title">${art.title}</h3>
-                        <div class="artwork-dimensions">
-                            <div class="dimension">
-                                <div class="dimension-value">${art.dimensions.width}</div>
-                                <div class="dimension-label">W (cm)</div>
-                            </div>
-                            <div class="dimension">
-                                <div class="dimension-value">${art.dimensions.height}</div>
-                                <div class="dimension-label">H (cm)</div>
-                            </div>
-                            <div class="dimension">
-                                <div class="dimension-value">${art.dimensions.depth}</div>
-                                <div class="dimension-label">D (cm)</div>
-                            </div>
-                        </div>
-                        <div class="artwork-price">${art.price}</div>
-                        <div class="artwork-actions">
-                            <button class="btn btn-primary" onclick="event.stopPropagation(); openModal(${art.id}, true)">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/>
+            gallery.innerHTML = userArtworks.map(art => {
+                const shortlisted = isShortlisted(art.id, true);
+                return `
+                    <div class="artwork-card user-uploaded" onclick="openModal(${art.id}, true)">
+                        <div class="artwork-preview">
+                            <span class="artwork-badge user-badge">${art.badge}</span>
+                            <span class="ar-available">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
                                     <circle cx="12" cy="12" r="3"/>
                                 </svg>
-                                View in AR
+                                AR
+                            </span>
+                            <button class="favorite-btn ${shortlisted ? 'active' : ''}" onclick="toggleShortlist(${art.id}, true, event)">
+                                <svg viewBox="0 0 24 24" fill="${shortlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                </svg>
                             </button>
-                            <button class="btn btn-secondary" onclick="event.stopPropagation(); deleteArtwork(${art.id})">
-                                Delete
-                            </button>
+                            <model-viewer
+                                src="${art.model}"
+                                alt="${art.title}"
+                                auto-rotate
+                                rotation-per-second="30deg"
+                                camera-controls
+                                disable-zoom
+                                interaction-prompt="none"
+                                shadow-intensity="0.5"
+                            ></model-viewer>
+                        </div>
+                        <div class="artwork-info">
+                            <div class="artwork-artist">${art.artist}</div>
+                            <h3 class="artwork-title">${art.title}</h3>
+                            <div class="artwork-dimensions">
+                                <div class="dimension">
+                                    <div class="dimension-value">${art.dimensions.width}</div>
+                                    <div class="dimension-label">W (cm)</div>
+                                </div>
+                                <div class="dimension">
+                                    <div class="dimension-value">${art.dimensions.height}</div>
+                                    <div class="dimension-label">H (cm)</div>
+                                </div>
+                                <div class="dimension">
+                                    <div class="dimension-value">${art.dimensions.depth}</div>
+                                    <div class="dimension-label">D (cm)</div>
+                                </div>
+                            </div>
+                            <div class="artwork-price">${art.price}</div>
+                            <div class="artwork-actions">
+                                <button class="btn btn-primary" onclick="event.stopPropagation(); openModal(${art.id}, true)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    View in AR
+                                </button>
+                                <button class="btn btn-secondary" onclick="event.stopPropagation(); deleteArtwork(${art.id})">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
         
         function deleteArtwork(id) {
             event.stopPropagation();
             if (confirm('Are you sure you want to delete this artwork?')) {
+                // Remove from shortlist if present
+                const key = `user-${id}`;
+                const shortlistIndex = shortlist.indexOf(key);
+                if (shortlistIndex > -1) {
+                    shortlist.splice(shortlistIndex, 1);
+                    localStorage.setItem('shortlist', JSON.stringify(shortlist));
+                }
+                
                 userArtworks = userArtworks.filter(a => a.id !== id);
                 localStorage.setItem('userArtworks', JSON.stringify(userArtworks));
                 renderMyArtworks();
                 renderGallery(currentFilter);
+                updateShortlistUI();
                 showToast('Artwork deleted');
             }
         }
@@ -2363,6 +2942,8 @@
             }
             if (!currentArtwork) return;
             
+            currentArtwork.isUserUploaded = isUserUploaded;
+            
             document.getElementById('modal-title').textContent = currentArtwork.title;
             document.getElementById('modal-artist').textContent = currentArtwork.artist;
             document.getElementById('modal-medium').textContent = currentArtwork.medium;
@@ -2379,8 +2960,73 @@
             const viewer = document.getElementById('modal-viewer');
             viewer.src = currentArtwork.model;
             
+            // Render comparison thumbnails
+            renderComparisonThumbnails();
+            
             document.getElementById('modal').classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+        
+        // Render comparison thumbnails
+        function renderComparisonThumbnails() {
+            const container = document.getElementById('comparison-thumbnails');
+            const emptyMsg = document.getElementById('comparison-empty');
+            const shortlistedArtworks = getShortlistedArtworks();
+            
+            // Filter out current artwork
+            const otherArtworks = shortlistedArtworks.filter(a => {
+                if (!currentArtwork) return true;
+                return !(a.id === currentArtwork.id && a.isUserUploaded === currentArtwork.isUserUploaded);
+            });
+            
+            if (otherArtworks.length === 0) {
+                container.innerHTML = '';
+                emptyMsg.style.display = 'block';
+                return;
+            }
+            
+            emptyMsg.style.display = 'none';
+            container.innerHTML = otherArtworks.map(art => `
+                <div class="comparison-thumb" onclick="switchToArtwork(${art.id}, ${art.isUserUploaded})" title="${art.title}">
+                    <model-viewer
+                        src="${art.model}"
+                        alt="${art.title}"
+                        auto-rotate
+                        rotation-per-second="30deg"
+                        interaction-prompt="none"
+                    ></model-viewer>
+                </div>
+            `).join('');
+        }
+        
+        // Switch to another artwork in the modal (for comparison)
+        function switchToArtwork(artworkId, isUserUploaded) {
+            const source = isUserUploaded ? userArtworks : artworks;
+            const newArtwork = source.find(a => a.id === artworkId);
+            if (!newArtwork) return;
+            
+            currentArtwork = { ...newArtwork, isUserUploaded };
+            
+            // Update modal content
+            document.getElementById('modal-title').textContent = currentArtwork.title;
+            document.getElementById('modal-artist').textContent = currentArtwork.artist;
+            document.getElementById('modal-medium').textContent = currentArtwork.medium;
+            document.getElementById('modal-style').textContent = currentArtwork.style;
+            document.getElementById('modal-price').textContent = currentArtwork.price;
+            document.getElementById('modal-width').textContent = currentArtwork.dimensions.width;
+            document.getElementById('modal-height').textContent = currentArtwork.dimensions.height;
+            document.getElementById('modal-depth').textContent = currentArtwork.dimensions.depth;
+            
+            const realSize = `${currentArtwork.dimensions.width} × ${currentArtwork.dimensions.height} × ${currentArtwork.dimensions.depth} cm`;
+            document.getElementById('real-size').textContent = realSize;
+            
+            const viewer = document.getElementById('modal-viewer');
+            viewer.src = currentArtwork.model;
+            
+            // Update thumbnails
+            renderComparisonThumbnails();
+            
+            showToast(`Switched to "${currentArtwork.title}"`, 'success');
         }
         
         // Close modal
@@ -2529,11 +3175,11 @@
             
             // Generate response
             if (matchedArtworks.length > 0) {
-                responseText = `Based on your interest in "<strong>${query}</strong>", I recommend these pieces from our collection. Each can be viewed in AR to see how it looks in your space:`;
+                responseText = `Based on your interest in "<strong>${query}</strong>", I recommend these pieces. You can add them to your shortlist and compare them in AR:`;
             } else {
                 // Fallback to random recommendations
                 matchedArtworks = allArtworks.sort(() => Math.random() - 0.5).slice(0, 3);
-                responseText = `I found some pieces you might like! Here are my suggestions based on our collection. Try them in AR to see how they fit your space:`;
+                responseText = `I found some pieces you might like! Add them to your shortlist to compare in AR:`;
             }
             
             return {
