@@ -271,35 +271,43 @@
             border: 4px solid var(--accent);
             background: white;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: rgba(233, 69, 96, 0.3);
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            position: relative;
+            z-index: 100;
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            user-select: none;
-            position: relative;
-            z-index: 10;
+            padding: 0;
         }
         
-        .capture-btn:hover,
-        .capture-btn:active {
-            transform: scale(1.1);
-            background: var(--accent);
-        }
-        
-        .capture-btn:hover .capture-inner,
-        .capture-btn:active .capture-inner {
-            background: white;
-        }
-        
-        .capture-inner {
+        /* Inner circle using pseudo-element */
+        .capture-btn::after {
+            content: '';
+            display: block;
             width: 50px;
             height: 50px;
             border-radius: 50%;
             background: var(--accent);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             pointer-events: none;
+        }
+        
+        .capture-btn:hover,
+        .capture-btn:active {
+            transform: scale(1.05);
+            background: var(--accent);
+        }
+        
+        .capture-btn:hover::after,
+        .capture-btn:active::after {
+            background: white;
         }
         
         .control-btn {
@@ -1025,9 +1033,7 @@
                     <button class="control-btn secondary" id="switch-camera-btn">
                         🔄 Switch
                     </button>
-                    <button class="capture-btn" id="capture-btn">
-                        <div class="capture-inner"></div>
-                    </button>
+                    <button class="capture-btn" id="capture-btn" type="button" aria-label="Capture photo"></button>
                     <button class="control-btn secondary" id="stop-camera-btn">
                         ✕ Close
                     </button>
