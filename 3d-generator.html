@@ -275,14 +275,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            position: relative;
+            z-index: 10;
         }
         
-        .capture-btn:hover {
+        .capture-btn:hover,
+        .capture-btn:active {
             transform: scale(1.1);
             background: var(--accent);
         }
         
-        .capture-btn:hover .capture-inner {
+        .capture-btn:hover .capture-inner,
+        .capture-btn:active .capture-inner {
             background: white;
         }
         
@@ -292,6 +299,7 @@
             border-radius: 50%;
             background: var(--accent);
             transition: all 0.3s ease;
+            pointer-events: none;
         }
         
         .control-btn {
@@ -1461,7 +1469,12 @@
         }
         
         function setupEventListeners() {
+            // Use both click and touchend for better mobile support
             captureBtn.addEventListener('click', captureImage);
+            captureBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                captureImage();
+            });
             switchCameraBtn.addEventListener('click', switchCamera);
             stopCameraBtn.addEventListener('click', stopCamera);
             startCameraBtn.addEventListener('click', startCamera);
