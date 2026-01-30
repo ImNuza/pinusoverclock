@@ -964,74 +964,16 @@
             errorMessage.classList.remove('visible');
             
             try {
-                // Call vision AI API
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                // Call backend API proxy for secure Vision AI analysis
+                const API_URL = getApiUrl();
+                
+                const response = await fetch(API_URL + '/api/analyze-room', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + getApiKey()
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: 'gpt-4.1-mini',
-                        messages: [
-                            {
-                                role: 'system',
-                                content: `You are an expert interior designer and art consultant. Analyze the room photo and recommend artworks.
-                                
-Your response MUST be valid JSON with this exact structure:
-{
-    "analysis": {
-        "description": "2-3 sentences describing the room's style, colors, and atmosphere",
-        "dominantColors": ["color1", "color2", "color3"],
-        "style": "modern/traditional/minimalist/eclectic/etc",
-        "mood": "calm/energetic/cozy/sophisticated/etc",
-        "lighting": "bright/dim/natural/warm/cool"
-    },
-    "recommendations": [
-        {
-            "artworkId": 101,
-            "matchScore": 95,
-            "reason": "Why this artwork fits the room"
-        }
-    ]
-}
-
-Available artwork IDs and their characteristics:
-- 101: Starry Night (blue, dramatic, expressive)
-- 102: Water Lilies (green, calm, natural)
-- 103: Café Terrace (yellow, warm, cozy)
-- 104: Mona Lisa (brown, classic, elegant)
-- 105: Kandinsky (colorful, energetic, bold)
-- 106: Abstract Blue (blue, calm, modern)
-- 107: Colorful Abstract (vibrant, playful, fun)
-- 108: Golden Abstract (gold, luxurious, warm)
-- 109: Botanical Study (green, fresh, natural)
-- 110: Classic Portrait (brown, traditional, dignified)
-- 111: Great Wave (blue, dramatic, powerful)
-- 112: Minimalist Lines (black/white, clean, simple)
-- 113: Geometric Patterns (colorful, structured, modern)
-- 114: Neon Dreams (neon, futuristic, edgy)
-- 115: Traditional Landscape (green, peaceful, scenic)
-
-Recommend 3-5 artworks that best match the room. Consider color harmony, style compatibility, and mood.`
-                            },
-                            {
-                                role: 'user',
-                                content: [
-                                    {
-                                        type: 'text',
-                                        text: 'Analyze this room and recommend artworks from the available collection.'
-                                    },
-                                    {
-                                        type: 'image_url',
-                                        image_url: {
-                                            url: uploadedImage
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        max_tokens: 1000
+                        image: uploadedImage
                     })
                 });
                 
@@ -1039,24 +981,7 @@ Recommend 3-5 artworks that best match the room. Consider color harmony, style c
                     throw new Error('API request failed: ' + response.status);
                 }
                 
-                const data = await response.json();
-                const content = data.choices[0].message.content;
-                
-                // Parse JSON from response
-                let result;
-                try {
-                    // Try to extract JSON from the response
-                    const jsonMatch = content.match(/\{[\s\S]*\}/);
-                    if (jsonMatch) {
-                        result = JSON.parse(jsonMatch[0]);
-                    } else {
-                        throw new Error('No JSON found in response');
-                    }
-                } catch (parseError) {
-                    console.error('Parse error:', parseError);
-                    // Fallback to default recommendations
-                    result = getDefaultRecommendations();
-                }
+                const result = await response.json();
                 
                 // Display results
                 displayResults(result);
@@ -1075,10 +1000,12 @@ Recommend 3-5 artworks that best match the room. Consider color harmony, style c
             }
         }
         
-        // Get API key from environment
-        function getApiKey() {
-            // This will be replaced with actual key
-            return 'OPENAI_API_KEY_PLACEHOLDER';
+        // Get API URL - uses backend proxy for secure API calls
+        function getApiUrl() {
+            // Backend API URL - change this to your deployed backend URL
+            // For local development: 'http://localhost:5000'
+            // For production: your deployed backend URL
+            return 'https://5000-ijn6p4q8c7vi8ulw360d4-071a53e4.sg1.manus.computer';
         }
         
         // Default recommendations fallback
