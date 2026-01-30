@@ -219,7 +219,6 @@
         #camera-video {
             width: 100%;
             display: block;
-            /* No mirroring - we want to capture what we see */
         }
         
         #camera-canvas {
@@ -329,6 +328,105 @@
             transform: none;
         }
         
+        /* Multi-Image Grid */
+        .multi-image-section {
+            margin-top: 20px;
+        }
+        
+        .multi-image-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .multi-image-header h4 {
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        .image-count {
+            background: var(--gradient-3d);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .image-slot {
+            aspect-ratio: 1;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: #fafafa;
+        }
+        
+        .image-slot:hover {
+            border-color: var(--accent);
+            background: rgba(233, 69, 96, 0.05);
+        }
+        
+        .image-slot.filled {
+            border-style: solid;
+            border-color: #11998e;
+        }
+        
+        .image-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-slot .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .image-slot:hover .remove-btn {
+            opacity: 1;
+        }
+        
+        .image-slot .slot-icon {
+            font-size: 1.5rem;
+            color: #ccc;
+        }
+        
+        .multi-image-tip {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: #2e7d32;
+        }
+        
         /* Upload Section */
         .upload-section {
             margin-top: 20px;
@@ -385,24 +483,6 @@
         
         .glb-upload-area.dragover {
             background: linear-gradient(135deg, rgba(17, 153, 142, 0.15) 0%, rgba(56, 239, 125, 0.15) 100%);
-        }
-        
-        /* Preview Section */
-        .preview-section {
-            display: none;
-            margin-top: 20px;
-        }
-        
-        .preview-section.visible {
-            display: block;
-        }
-        
-        .preview-image {
-            width: 100%;
-            max-width: 400px;
-            border-radius: 15px;
-            display: block;
-            margin: 0 auto;
         }
         
         /* Options Section */
@@ -659,6 +739,60 @@
             box-shadow: 0 6px 20px rgba(233, 69, 96, 0.5);
         }
         
+        /* Add to Gallery Section */
+        .add-to-gallery-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-radius: 15px;
+        }
+        
+        .add-to-gallery-section h4 {
+            color: #f57c00;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .gallery-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .gallery-form input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .gallery-form input:focus {
+            outline: none;
+            border-color: #f57c00;
+        }
+        
+        .add-gallery-btn {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .add-gallery-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(245, 124, 0, 0.4);
+        }
+        
         .result-actions {
             display: flex;
             flex-wrap: wrap;
@@ -712,6 +846,21 @@
         }
         
         .error-message.visible {
+            display: block;
+        }
+        
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .success-message.visible {
             display: block;
         }
         
@@ -784,6 +933,10 @@
             .tab-btn {
                 min-width: 100%;
             }
+            
+            .image-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
     </style>
 </head>
@@ -810,7 +963,7 @@
         <!-- Hero -->
         <div class="hero">
             <h1>Turn Photos into 3D Models</h1>
-            <p>Capture or upload an image of any object and transform it into a textured 3D model</p>
+            <p>Capture up to 4 images from different angles for better 3D conversion</p>
             <div class="ai-badge">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -830,7 +983,7 @@
                 <button class="tab-btn active" data-tab="generate">
                     <div class="tab-icon">📸</div>
                     <div class="tab-label">Generate 3D</div>
-                    <div class="tab-desc">From photo</div>
+                    <div class="tab-desc">From photos (1-4)</div>
                 </button>
                 <button class="tab-btn" data-tab="import">
                     <div class="tab-icon">📦</div>
@@ -853,7 +1006,7 @@
                 
                 <div class="capture-controls" id="camera-controls">
                     <button class="control-btn secondary" id="switch-camera-btn">
-                        🔄 Switch Camera
+                        🔄 Switch
                     </button>
                     <button class="capture-btn" id="capture-btn">
                         <div class="capture-inner"></div>
@@ -870,40 +1023,45 @@
                     </button>
                 </div>
                 
-                <!-- Upload Section -->
-                <div class="upload-section" id="image-upload-section">
-                    <p style="text-align: center; color: var(--text-light); margin-bottom: 15px;">— or upload an image —</p>
-                    <div class="upload-area" id="upload-area">
-                        <div class="upload-icon">📁</div>
-                        <p class="upload-text">Click or drag & drop an image here</p>
-                        <p style="font-size: 0.85rem; color: #999; margin-top: 5px;">Supports JPG, JPEG, PNG</p>
+                <!-- Multi-Image Grid -->
+                <div class="multi-image-section" id="multi-image-section">
+                    <div class="multi-image-header">
+                        <h4>📷 Captured Images</h4>
+                        <span class="image-count" id="image-count">0/4</span>
                     </div>
-                    <input type="file" id="file-input" accept="image/jpeg,image/jpg,image/png">
+                    <div class="image-grid" id="image-grid">
+                        <div class="image-slot" data-index="0">
+                            <span class="slot-icon">+</span>
+                        </div>
+                        <div class="image-slot" data-index="1">
+                            <span class="slot-icon">+</span>
+                        </div>
+                        <div class="image-slot" data-index="2">
+                            <span class="slot-icon">+</span>
+                        </div>
+                        <div class="image-slot" data-index="3">
+                            <span class="slot-icon">+</span>
+                        </div>
+                    </div>
+                    <div class="multi-image-tip">
+                        💡 <strong>Tip:</strong> Add 2-4 images from different angles (front, side, back) for better 3D results!
+                    </div>
                 </div>
                 
-                <!-- Preview Section -->
-                <div class="preview-section" id="preview-section">
-                    <h3 style="text-align: center; margin-bottom: 15px; color: var(--primary);">📷 Captured Image</h3>
-                    <img id="preview-image" class="preview-image" alt="Preview">
-                    <div style="text-align: center; margin-top: 15px;">
-                        <button class="control-btn secondary" id="retake-btn">🔄 Retake / Choose Another</button>
+                <!-- Upload Section -->
+                <div class="upload-section" id="image-upload-section">
+                    <p style="text-align: center; color: var(--text-light); margin-bottom: 15px;">— or upload images —</p>
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon">📁</div>
+                        <p class="upload-text">Click or drag & drop images here</p>
+                        <p style="font-size: 0.85rem; color: #999; margin-top: 5px;">Supports JPG, JPEG, PNG (up to 4 images)</p>
                     </div>
+                    <input type="file" id="file-input" accept="image/jpeg,image/jpg,image/png" multiple>
                 </div>
                 
                 <!-- Options Section -->
-                <div class="options-section" id="options-section" style="display: none;">
+                <div class="options-section" id="options-section">
                     <h3 class="options-title">⚙️ Generation Options</h3>
-                    
-                    <div class="option-row">
-                        <div class="option-label">
-                            <span>Model Quality</span>
-                            <small>Higher quality = longer processing</small>
-                        </div>
-                        <select class="option-select" id="model-type">
-                            <option value="standard">Standard (High Detail)</option>
-                            <option value="lowpoly">Low Poly (Optimized)</option>
-                        </select>
-                    </div>
                     
                     <div class="option-row">
                         <div class="option-label">
@@ -938,18 +1096,6 @@
                         </label>
                     </div>
                     
-                    <div class="option-row">
-                        <div class="option-label">
-                            <span>Symmetry Mode</span>
-                            <small>For symmetric objects</small>
-                        </div>
-                        <select class="option-select" id="symmetry-mode">
-                            <option value="auto">Auto Detect</option>
-                            <option value="on">Force Symmetry</option>
-                            <option value="off">No Symmetry</option>
-                        </select>
-                    </div>
-                    
                     <div class="credits-info">
                         <span>💎 Estimated Credits: <span id="credit-estimate">30</span></span>
                         <small style="color: #666;">Based on selected options</small>
@@ -977,7 +1123,7 @@
                 
                 <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 10px;">
                     <p style="color: #2e7d32; font-size: 0.9rem;">
-                        <strong>💡 Tip:</strong> Import existing 3D models to view them in AR or add them to your collection.
+                        <strong>💡 Tip:</strong> Import existing 3D models to view them in AR or add them to your gallery collection.
                     </p>
                 </div>
             </div>
@@ -1014,12 +1160,43 @@
                         exposure="1"
                         ar
                         ar-modes="webxr scene-viewer quick-look"
+                        ar-scale="auto"
+                        ar-placement="floor wall"
                         ios-src=""
                         style="width: 100%; height: 100%;">
+                        <button slot="ar-button" style="
+                            background: var(--accent);
+                            color: white;
+                            border: none;
+                            padding: 12px 24px;
+                            border-radius: 25px;
+                            font-weight: 600;
+                            position: absolute;
+                            bottom: 16px;
+                            right: 16px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        ">
+                            👁️ View in AR
+                        </button>
                     </model-viewer>
-                    <button class="ar-button-custom" id="ar-button-custom" style="display: none;">
-                        👁️ View in AR
-                    </button>
+                </div>
+                
+                <!-- Add to Gallery Section -->
+                <div class="add-to-gallery-section" id="add-to-gallery-section">
+                    <h4>🖼️ Add to Your Gallery</h4>
+                    <div class="gallery-form">
+                        <input type="text" id="model-title" placeholder="Model Title (e.g., My Sculpture)">
+                        <input type="text" id="model-artist" placeholder="Artist Name (optional)">
+                        <button class="add-gallery-btn" id="add-gallery-btn">
+                            ➕ Add to Gallery
+                        </button>
+                    </div>
+                    <div class="success-message" id="gallery-success">
+                        ✅ Model added to your gallery! View it on the main page.
+                    </div>
                 </div>
                 
                 <div class="result-actions" id="result-actions">
@@ -1052,9 +1229,9 @@
                 Tips for Best Results
             </h4>
             <ul>
+                <li><strong>Multiple angles:</strong> Take 2-4 photos from different angles (front, side, back)</li>
                 <li>Use a plain, contrasting background</li>
                 <li>Ensure good, even lighting without harsh shadows</li>
-                <li>Capture the object from a clear angle showing its main features</li>
                 <li>Avoid reflective or transparent objects</li>
                 <li>Higher resolution images produce better 3D models</li>
             </ul>
@@ -1068,12 +1245,13 @@
         
         // State
         let currentStream = null;
-        let facingMode = 'environment'; // Start with back camera
-        let capturedImageData = null;
+        let facingMode = 'environment';
+        let capturedImages = []; // Array to store up to 4 images
         let currentTaskId = null;
         let pollInterval = null;
         let currentModelUrls = null;
         let importedModelUrl = null;
+        let currentModelData = null; // Store model data for gallery
         
         // DOM Elements
         const cameraContainer = document.getElementById('camera-container');
@@ -1087,10 +1265,6 @@
         const startCameraBtn = document.getElementById('start-camera-btn');
         const uploadArea = document.getElementById('upload-area');
         const fileInput = document.getElementById('file-input');
-        const previewSection = document.getElementById('preview-section');
-        const previewImage = document.getElementById('preview-image');
-        const retakeBtn = document.getElementById('retake-btn');
-        const optionsSection = document.getElementById('options-section');
         const generateBtn = document.getElementById('generate-btn');
         const progressSection = document.getElementById('progress-section');
         const progressText = document.getElementById('progress-text');
@@ -1102,6 +1276,8 @@
         const modelViewer = document.getElementById('result-model-viewer');
         const glbUploadArea = document.getElementById('glb-upload-area');
         const glbInput = document.getElementById('glb-input');
+        const imageGrid = document.getElementById('image-grid');
+        const imageCount = document.getElementById('image-count');
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -1109,6 +1285,7 @@
             setupEventListeners();
             setupTabs();
             setupGLBImport();
+            setupImageSlots();
             updateCreditEstimate();
         });
         
@@ -1117,15 +1294,68 @@
                 btn.addEventListener('click', () => {
                     const tabId = btn.dataset.tab;
                     
-                    // Update buttons
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     
-                    // Update content
                     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                     document.getElementById(`tab-${tabId}`).classList.add('active');
                 });
             });
+        }
+        
+        function setupImageSlots() {
+            document.querySelectorAll('.image-slot').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    const index = parseInt(slot.dataset.index);
+                    if (capturedImages[index]) {
+                        // If slot has image, do nothing (use remove button)
+                    } else {
+                        // Click to upload
+                        fileInput.click();
+                    }
+                });
+            });
+        }
+        
+        function updateImageGrid() {
+            const slots = document.querySelectorAll('.image-slot');
+            slots.forEach((slot, index) => {
+                if (capturedImages[index]) {
+                    slot.classList.add('filled');
+                    slot.innerHTML = `
+                        <img src="${capturedImages[index]}" alt="Image ${index + 1}">
+                        <button class="remove-btn" onclick="removeImage(${index}, event)">×</button>
+                    `;
+                } else {
+                    slot.classList.remove('filled');
+                    slot.innerHTML = '<span class="slot-icon">+</span>';
+                }
+            });
+            
+            imageCount.textContent = `${capturedImages.filter(Boolean).length}/4`;
+            generateBtn.disabled = capturedImages.filter(Boolean).length === 0;
+        }
+        
+        function removeImage(index, event) {
+            event.stopPropagation();
+            capturedImages[index] = null;
+            // Compact the array
+            capturedImages = capturedImages.filter(Boolean);
+            while (capturedImages.length < 4) {
+                capturedImages.push(null);
+            }
+            updateImageGrid();
+        }
+        
+        function addImage(imageData) {
+            // Find first empty slot
+            const emptyIndex = capturedImages.findIndex(img => !img);
+            if (emptyIndex !== -1 && emptyIndex < 4) {
+                capturedImages[emptyIndex] = imageData;
+                updateImageGrid();
+                return true;
+            }
+            return false;
         }
         
         function setupGLBImport() {
@@ -1161,41 +1391,35 @@
         }
         
         function handleGLBFile(file) {
-            // Create object URL for the file
             importedModelUrl = URL.createObjectURL(file);
-            
-            // Show result with imported model
+            currentModelData = {
+                glbUrl: importedModelUrl,
+                fileName: file.name,
+                isImported: true
+            };
             showImportedModel(importedModelUrl, file.name);
         }
         
         function showImportedModel(modelUrl, fileName) {
-            // Hide other sections
             document.querySelector('.main-card').style.display = 'none';
-            
-            // Show result section
             resultSection.classList.add('visible');
             
-            // Set model viewer source
             modelViewer.src = modelUrl;
             
-            // Update header
             document.querySelector('.result-header h2').textContent = '📦 Imported Model';
             document.querySelector('.result-header p').textContent = fileName;
             
-            // Setup download button for imported model
             const downloadGlb = document.getElementById('download-glb');
             downloadGlb.href = modelUrl;
             downloadGlb.download = fileName;
             downloadGlb.style.display = 'inline-flex';
             
-            // Hide other download buttons for imported models
             document.getElementById('download-fbx').style.display = 'none';
             document.getElementById('download-obj').style.display = 'none';
             
-            // Setup AR button
-            setupARButton(modelUrl);
+            // Pre-fill title with filename
+            document.getElementById('model-title').value = fileName.replace(/\.(glb|gltf)$/i, '');
             
-            // Scroll to result
             resultSection.scrollIntoView({ behavior: 'smooth' });
         }
         
@@ -1227,8 +1451,6 @@
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                 cameraVideo.srcObject = currentStream;
                 
-                // No mirroring for any camera - we want accurate capture
-                
                 cameraContainer.style.display = 'block';
                 cameraControls.style.display = 'flex';
                 startCameraSection.style.display = 'none';
@@ -1239,43 +1461,41 @@
         }
         
         function setupEventListeners() {
-            // Camera controls
             captureBtn.addEventListener('click', captureImage);
             switchCameraBtn.addEventListener('click', switchCamera);
             stopCameraBtn.addEventListener('click', stopCamera);
             startCameraBtn.addEventListener('click', startCamera);
             
-            // Upload
             uploadArea.addEventListener('click', () => fileInput.click());
             uploadArea.addEventListener('dragover', handleDragOver);
             uploadArea.addEventListener('dragleave', handleDragLeave);
             uploadArea.addEventListener('drop', handleDrop);
             fileInput.addEventListener('change', handleFileSelect);
             
-            // Retake
-            retakeBtn.addEventListener('click', retakeImage);
-            
-            // Generate
             generateBtn.addEventListener('click', generateModel);
             
-            // Options change
             document.getElementById('should-texture').addEventListener('change', updateCreditEstimate);
             document.getElementById('enable-pbr').addEventListener('change', updateCreditEstimate);
             
-            // New model
             document.getElementById('new-model-btn').addEventListener('click', resetToStart);
+            
+            // Add to gallery button
+            document.getElementById('add-gallery-btn').addEventListener('click', addToGallery);
         }
         
         function captureImage() {
+            if (capturedImages.filter(Boolean).length >= 4) {
+                showError('Maximum 4 images allowed. Remove one to add more.');
+                return;
+            }
+            
             const context = cameraCanvas.getContext('2d');
             cameraCanvas.width = cameraVideo.videoWidth;
             cameraCanvas.height = cameraVideo.videoHeight;
-            
-            // Draw the image as-is, no flipping
             context.drawImage(cameraVideo, 0, 0);
             
-            capturedImageData = cameraCanvas.toDataURL('image/jpeg', 0.9);
-            showPreview(capturedImageData);
+            const imageData = cameraCanvas.toDataURL('image/jpeg', 0.9);
+            addImage(imageData);
         }
         
         async function switchCamera() {
@@ -1307,102 +1527,90 @@
             e.preventDefault();
             uploadArea.classList.remove('dragover');
             
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                processFile(file);
-            }
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            processFiles(files);
         }
         
         function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (file) {
-                processFile(file);
+            const files = Array.from(e.target.files);
+            processFiles(files);
+        }
+        
+        function processFiles(files) {
+            const currentCount = capturedImages.filter(Boolean).length;
+            const availableSlots = 4 - currentCount;
+            const filesToProcess = files.slice(0, availableSlots);
+            
+            filesToProcess.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    addImage(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            if (files.length > availableSlots) {
+                showError(`Only ${availableSlots} more image(s) can be added. Some images were skipped.`);
             }
-        }
-        
-        function processFile(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                capturedImageData = e.target.result;
-                showPreview(capturedImageData);
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        function showPreview(imageData) {
-            previewImage.src = imageData;
-            previewSection.classList.add('visible');
-            optionsSection.style.display = 'block';
-            generateBtn.disabled = false;
-            
-            // Hide camera
-            cameraContainer.style.display = 'none';
-            cameraControls.style.display = 'none';
-            startCameraSection.style.display = 'none';
-            document.getElementById('image-upload-section').style.display = 'none';
-        }
-        
-        function retakeImage() {
-            capturedImageData = null;
-            previewSection.classList.remove('visible');
-            optionsSection.style.display = 'none';
-            generateBtn.disabled = true;
-            errorMessage.classList.remove('visible');
-            
-            document.getElementById('image-upload-section').style.display = 'block';
-            fileInput.value = '';
-            
-            // Try to restart camera
-            initCamera();
         }
         
         function updateCreditEstimate() {
             const shouldTexture = document.getElementById('should-texture').checked;
-            const enablePbr = document.getElementById('enable-pbr').checked;
-            
-            let credits = 20; // Base mesh cost
+            let credits = 20;
             if (shouldTexture) credits += 10;
-            // PBR is included in texture cost
-            
             document.getElementById('credit-estimate').textContent = credits;
         }
         
         async function generateModel() {
-            if (!capturedImageData) {
-                showError('Please capture or upload an image first');
+            const images = capturedImages.filter(Boolean);
+            if (images.length === 0) {
+                showError('Please capture or upload at least one image');
                 return;
             }
             
-            // Get options
-            const modelType = document.getElementById('model-type').value;
             const aiModel = document.getElementById('ai-model').value;
             const shouldTexture = document.getElementById('should-texture').checked;
             const enablePbr = document.getElementById('enable-pbr').checked;
-            const symmetryMode = document.getElementById('symmetry-mode').value;
             
-            // Show progress
             progressSection.classList.add('visible');
             generateBtn.disabled = true;
             errorMessage.classList.remove('visible');
-            updateProgress(0, 'Uploading image...');
+            updateProgress(0, 'Uploading images...');
             
             try {
-                // Create task
-                const response = await fetch(`${MESHY_API_BASE}/image-to-3d`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${MESHY_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        image_url: capturedImageData,
-                        model_type: modelType,
-                        ai_model: aiModel,
-                        should_texture: shouldTexture,
-                        enable_pbr: enablePbr,
-                        symmetry_mode: symmetryMode
-                    })
-                });
+                let response;
+                
+                if (images.length === 1) {
+                    // Single image API
+                    response = await fetch(`${MESHY_API_BASE}/image-to-3d`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${MESHY_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            image_url: images[0],
+                            ai_model: aiModel,
+                            should_texture: shouldTexture,
+                            enable_pbr: enablePbr
+                        })
+                    });
+                } else {
+                    // Multi-image API (2-4 images)
+                    response = await fetch(`${MESHY_API_BASE}/multi-image-to-3d`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${MESHY_API_KEY}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            image_urls: images,
+                            ai_model: aiModel,
+                            should_texture: shouldTexture,
+                            enable_pbr: enablePbr
+                        })
+                    });
+                }
                 
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -1413,9 +1621,7 @@
                 currentTaskId = data.result;
                 
                 updateProgress(5, 'Task created, processing...');
-                
-                // Start polling for status
-                pollTaskStatus();
+                pollTaskStatus(images.length > 1);
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -1425,10 +1631,12 @@
             }
         }
         
-        function pollTaskStatus() {
+        function pollTaskStatus(isMultiImage = false) {
+            const endpoint = isMultiImage ? 'multi-image-to-3d' : 'image-to-3d';
+            
             pollInterval = setInterval(async () => {
                 try {
-                    const response = await fetch(`${MESHY_API_BASE}/image-to-3d/${currentTaskId}`, {
+                    const response = await fetch(`${MESHY_API_BASE}/${endpoint}/${currentTaskId}`, {
                         headers: {
                             'Authorization': `Bearer ${MESHY_API_KEY}`
                         }
@@ -1439,8 +1647,6 @@
                     }
                     
                     const task = await response.json();
-                    
-                    // Update progress
                     const progress = task.progress || 0;
                     updateProgress(progress, getStatusText(task.status));
                     
@@ -1461,9 +1667,8 @@
                     
                 } catch (error) {
                     console.error('Poll error:', error);
-                    // Don't stop polling on temporary errors
                 }
-            }, 3000); // Poll every 3 seconds
+            }, 3000);
         }
         
         function getStatusText(status) {
@@ -1483,7 +1688,7 @@
             progressStatus.textContent = status;
             
             if (percent < 30) {
-                progressText.textContent = 'Analyzing image...';
+                progressText.textContent = 'Analyzing images...';
             } else if (percent < 60) {
                 progressText.textContent = 'Building 3D geometry...';
             } else if (percent < 90) {
@@ -1493,60 +1698,29 @@
             }
         }
         
-        function setupARButton(glbUrl) {
-            const arButton = document.getElementById('ar-button-custom');
-            
-            // Check if AR is supported
-            if (modelViewer.canActivateAR) {
-                arButton.style.display = 'flex';
-                arButton.onclick = () => {
-                    modelViewer.activateAR();
-                };
-            } else {
-                // For iOS, we need to use a direct link approach
-                arButton.style.display = 'flex';
-                arButton.onclick = () => {
-                    // Try to activate AR through model-viewer
-                    if (modelViewer.activateAR) {
-                        modelViewer.activateAR();
-                    } else {
-                        // Fallback: open GLB directly (iOS Quick Look)
-                        window.open(glbUrl, '_blank');
-                    }
-                };
-            }
-        }
-        
         function showResult(task) {
             progressSection.classList.remove('visible');
-            
-            // Hide main card
             document.querySelector('.main-card').style.display = 'none';
-            
-            // Show result section
             resultSection.classList.add('visible');
             
-            // Update header
             document.querySelector('.result-header h2').textContent = '🎉 Your 3D Model is Ready!';
             document.querySelector('.result-header p').textContent = 'Interact with your model below or view it in AR';
             
-            // Store model URLs
             currentModelUrls = task.model_urls;
+            currentModelData = {
+                glbUrl: task.model_urls?.glb,
+                thumbnailUrl: task.thumbnail_url,
+                isGenerated: true
+            };
             
-            // Set model viewer source
             if (task.model_urls && task.model_urls.glb) {
                 modelViewer.src = task.model_urls.glb;
                 
-                // For iOS AR Quick Look, also set ios-src
                 if (task.model_urls.usdz) {
                     modelViewer.setAttribute('ios-src', task.model_urls.usdz);
                 }
-                
-                // Setup AR button
-                setupARButton(task.model_urls.glb);
             }
             
-            // Set download links
             if (task.model_urls) {
                 const downloadGlb = document.getElementById('download-glb');
                 const downloadFbx = document.getElementById('download-fbx');
@@ -1566,51 +1740,109 @@
                 }
             }
             
-            // Scroll to result
+            // Clear title field for new entry
+            document.getElementById('model-title').value = '';
+            document.getElementById('model-artist').value = '';
+            document.getElementById('gallery-success').classList.remove('visible');
+            
             resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function addToGallery() {
+            const title = document.getElementById('model-title').value.trim();
+            const artist = document.getElementById('model-artist').value.trim() || 'User Created';
+            
+            if (!title) {
+                alert('Please enter a title for your model');
+                return;
+            }
+            
+            if (!currentModelData || !currentModelData.glbUrl) {
+                alert('No model available to add');
+                return;
+            }
+            
+            // Create artwork object
+            const newArtwork = {
+                id: Date.now(),
+                title: title,
+                artist: artist,
+                medium: currentModelData.isImported ? 'Imported 3D Model' : 'AI Generated 3D Model',
+                style: 'User Created',
+                price: 'Personal Collection',
+                dimensions: { width: 30, height: 30, depth: 30 },
+                model: currentModelData.glbUrl,
+                type: '3d',
+                badge: currentModelData.isImported ? 'Imported' : 'AI Generated',
+                category: 'user-created',
+                tags: ['user-created', 'custom', '3d-scan'],
+                description: `Created with ArtSpace 3D Generator`,
+                isUserCreated: true,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            try {
+                const userArtworks = JSON.parse(localStorage.getItem('artspace_user_artworks') || '[]');
+                userArtworks.unshift(newArtwork);
+                localStorage.setItem('artspace_user_artworks', JSON.stringify(userArtworks));
+                
+                // Show success message
+                document.getElementById('gallery-success').classList.add('visible');
+                
+                // Disable button temporarily
+                const btn = document.getElementById('add-gallery-btn');
+                btn.textContent = '✅ Added!';
+                btn.disabled = true;
+                
+                setTimeout(() => {
+                    btn.textContent = '➕ Add to Gallery';
+                    btn.disabled = false;
+                }, 3000);
+                
+            } catch (e) {
+                console.error('Error saving to gallery:', e);
+                alert('Failed to save to gallery. Please try again.');
+            }
         }
         
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.classList.add('visible');
+            setTimeout(() => {
+                errorMessage.classList.remove('visible');
+            }, 5000);
         }
         
         function resetToStart() {
-            // Reset state
-            capturedImageData = null;
+            capturedImages = [null, null, null, null];
             currentTaskId = null;
             currentModelUrls = null;
+            currentModelData = null;
             importedModelUrl = null;
+            
             if (pollInterval) {
                 clearInterval(pollInterval);
             }
             
-            // Reset UI
-            previewSection.classList.remove('visible');
-            optionsSection.style.display = 'none';
+            updateImageGrid();
             progressSection.classList.remove('visible');
             resultSection.classList.remove('visible');
             errorMessage.classList.remove('visible');
             generateBtn.disabled = true;
             
-            // Show main card again
             document.querySelector('.main-card').style.display = 'block';
             
-            document.getElementById('image-upload-section').style.display = 'block';
             fileInput.value = '';
             glbInput.value = '';
             
-            // Reset progress
             progressBar.style.width = '0%';
             progressPercent.textContent = '0%';
             
-            // Reset model viewer
             modelViewer.src = '';
             
-            // Try to restart camera
             initCamera();
             
-            // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
