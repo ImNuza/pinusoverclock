@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ArtSpace - Painting Scanner</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- OpenCV.js for edge detection -->
+    <script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady()"></script>
+    
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --gold: #d4af37;
+            --light: #f5f5f5;
+            --text: #333;
+            --text-light: #666;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Main Content */
+        .main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .scanner-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .scanner-subtitle {
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* Steps */
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 30px;
+            font-size: 14px;
+            color: var(--text-light);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .step.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .step.completed {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .step.active .step-number,
+        .step.completed .step-number {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Scanner Container */
+        .scanner-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        /* Step 1: Upload */
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 60px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(233, 69, 96, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--accent);
+            background: rgba(233, 69, 96, 0.1);
+        }
+        
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--accent) 0%, #ff6b6b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+        }
+        
+        .upload-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .upload-subtitle {
+            color: var(--text-light);
+            margin-bottom: 20px;
+        }
+        
+        .upload-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .upload-btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .upload-btn.primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+        
+        .upload-btn.primary:hover {
+            background: #d63850;
+            transform: translateY(-2px);
+        }
+        
+        .upload-btn.secondary {
+            background: white;
+            color: var(--text);
+            border: 2px solid #ddd;
+        }
+        
+        .upload-btn.secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        /* Step 2: Crop */
+        .crop-container {
+            display: none;
+        }
+        
+        .crop-container.active {
+            display: block;
+        }
+        
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-height: 500px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #000;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .image-container canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        
+        /* Corner handles */
+        .corner-handle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border: 3px solid white;
+            border-radius: 50%;
+            cursor: move;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            z-index: 10;
+        }
+        
+        .corner-handle:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+        
+        .crop-instructions {
+            text-align: center;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 10px;
+            margin-top: 15px;
+            color: #856404;
+        }
+        
+        .crop-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        /* Step 3: Details */
+        .details-container {
+            display: none;
+        }
+        
+        .details-container.active {
+            display: block;
+        }
+        
+        .preview-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .preview-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .preview-box h4 {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .preview-box img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 500px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .dimension-input {
+            position: relative;
+        }
+        
+        .dimension-input input {
+            padding-right: 40px;
+        }
+        
+        .dimension-unit {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 12px;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #d63850;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #43a047;
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Success */
+        .success-container {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .success-container.active {
+            display: block;
+        }
+        
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .success-icon svg {
+            width: 50px;
+            height: 50px;
+            stroke: white;
+        }
+        
+        /* Hidden elements */
+        #fileInput, #cameraInput {
+            display: none;
+        }
+        
+        /* Canvas for processing */
+        #processingCanvas {
+            display: none;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-light);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">🎨</div>
+                ArtSpace
+            </a>
+            <a href="index.html" class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Gallery
+            </a>
+        </div>
+    </header>
+    
+    <main class="main">
+        <h1 class="scanner-title">Painting Scanner</h1>
+        <p class="scanner-subtitle">Capture your artwork and convert it to AR-ready format</p>
+        
+        <!-- Progress Steps -->
+        <div class="steps">
+            <div class="step active" id="step1-indicator">
+                <span class="step-number">1</span>
+                Upload
+            </div>
+            <div class="step" id="step2-indicator">
+                <span class="step-number">2</span>
+                Crop
+            </div>
+            <div class="step" id="step3-indicator">
+                <span class="step-number">3</span>
+                Details
+            </div>
+        </div>
+        
+        <div class="scanner-container">
+            <!-- Step 1: Upload -->
+            <div class="upload-container" id="step1">
+                <div class="upload-area" id="dropZone">
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <h3 class="upload-title">Upload Your Painting</h3>
+                    <p class="upload-subtitle">Take a photo or upload an image of your artwork</p>
+                    <div class="upload-buttons">
+                        <button class="upload-btn primary" onclick="document.getElementById('cameraInput').click()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                                <circle cx="12" cy="13" r="4"/>
+                            </svg>
+                            Take Photo
+                        </button>
+                        <button class="upload-btn secondary" onclick="document.getElementById('fileInput').click()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Upload Image
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Crop -->
+            <div class="crop-container" id="step2">
+                <div class="image-container" id="imageContainer">
+                    <img id="uploadedImage" src="" alt="Uploaded painting">
+                    <canvas id="overlayCanvas"></canvas>
+                    <div class="corner-handle" id="corner-tl" data-corner="tl"></div>
+                    <div class="corner-handle" id="corner-tr" data-corner="tr"></div>
+                    <div class="corner-handle" id="corner-br" data-corner="br"></div>
+                    <div class="corner-handle" id="corner-bl" data-corner="bl"></div>
+                </div>
+                <div class="crop-instructions">
+                    <strong>Drag the corner handles</strong> to align with the edges of your painting. The app will auto-detect edges, but you can adjust manually.
+                </div>
+                <div class="crop-actions">
+                    <button class="btn btn-secondary" onclick="resetToStep1()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Back
+                    </button>
+                    <button class="btn btn-primary" onclick="autoDetectEdges()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        Auto Detect
+                    </button>
+                    <button class="btn btn-success" onclick="cropAndContinue()">
+                        Continue
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Details -->
+            <div class="details-container" id="step3">
+                <div class="preview-row">
+                    <div class="preview-box">
+                        <h4>Original</h4>
+                        <img id="originalPreview" src="" alt="Original">
+                    </div>
+                    <div class="preview-box">
+                        <h4>Cropped Result</h4>
+                        <img id="croppedPreview" src="" alt="Cropped">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Artwork Title *</label>
+                    <input type="text" id="artworkTitle" placeholder="Enter the title of your artwork">
+                </div>
+                
+                <div class="form-group">
+                    <label>Artist Name *</label>
+                    <input type="text" id="artistName" placeholder="Enter the artist's name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Real-World Dimensions (cm) *</label>
+                    <div class="form-row">
+                        <div class="dimension-input">
+                            <input type="number" id="artWidth" placeholder="Width" min="1">
+                            <span class="dimension-unit">cm</span>
+                        </div>
+                        <div class="dimension-input">
+                            <input type="number" id="artHeight" placeholder="Height" min="1">
+                            <span class="dimension-unit">cm</span>
+                        </div>
+                        <div class="dimension-input">
+                            <input type="number" id="artDepth" placeholder="Depth" min="1" value="3">
+                            <span class="dimension-unit">cm</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="artCategory">
+                        <option value="paintings">Paintings</option>
+                        <option value="sculptures">Sculptures</option>
+                        <option value="modern">Modern Art</option>
+                        <option value="decorative">Decorative</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Style</label>
+                    <input type="text" id="artStyle" placeholder="e.g., Abstract, Impressionism, Contemporary">
+                </div>
+                
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="text" id="artPrice" placeholder="e.g., $500 or Contact for Price">
+                </div>
+                
+                <div class="crop-actions">
+                    <button class="btn btn-secondary" onclick="resetToStep2()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Back
+                    </button>
+                    <button class="btn btn-success" onclick="createAndSave()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Create AR Model
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Success -->
+            <div class="success-container" id="successStep">
+                <div class="success-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <h2 style="margin-bottom: 10px;">Artwork Added Successfully!</h2>
+                <p style="color: var(--text-light); margin-bottom: 30px;">Your painting has been converted to AR format and added to your collection.</p>
+                <div class="crop-actions">
+                    <button class="btn btn-secondary" onclick="resetScanner()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        Add Another
+                    </button>
+                    <a href="index.html" class="btn btn-primary">
+                        View in Gallery
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="loadingText">Processing your artwork...</p>
+        </div>
+    </div>
+    
+    <!-- Hidden Inputs -->
+    <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+    <canvas id="processingCanvas"></canvas>
+    
+    <footer class="footer">
+        <p>ArtSpace Painting Scanner | PINUS Hack 2026</p>
+    </footer>
+    
+    <script>
+        // State
+        let originalImage = null;
+        let croppedImageData = null;
+        let corners = {
+            tl: { x: 0.1, y: 0.1 },
+            tr: { x: 0.9, y: 0.1 },
+            br: { x: 0.9, y: 0.9 },
+            bl: { x: 0.1, y: 0.9 }
+        };
+        let isDragging = false;
+        let activeCorner = null;
+        let cvReady = false;
+        
+        // OpenCV ready callback
+        function onOpenCvReady() {
+            cvReady = true;
+            console.log('OpenCV.js is ready');
+        }
+        
+        // Drag and drop
+        const dropZone = document.getElementById('dropZone');
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        });
+        
+        // File selection
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                loadImage(file);
+            }
+        }
+        
+        // Load image
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                originalImage = new Image();
+                originalImage.onload = () => {
+                    showStep2();
+                };
+                originalImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Show step 2
+        function showStep2() {
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').classList.add('active');
+            
+            document.getElementById('step1-indicator').classList.remove('active');
+            document.getElementById('step1-indicator').classList.add('completed');
+            document.getElementById('step2-indicator').classList.add('active');
+            
+            const img = document.getElementById('uploadedImage');
+            img.src = originalImage.src;
+            
+            img.onload = () => {
+                initializeCorners();
+                setupCornerDragging();
+                drawOverlay();
+                
+                // Try auto-detect after a short delay
+                setTimeout(() => {
+                    if (cvReady) {
+                        autoDetectEdges();
+                    }
+                }, 500);
+            };
+        }
+        
+        // Initialize corners
+        function initializeCorners() {
+            corners = {
+                tl: { x: 0.1, y: 0.1 },
+                tr: { x: 0.9, y: 0.1 },
+                br: { x: 0.9, y: 0.9 },
+                bl: { x: 0.1, y: 0.9 }
+            };
+            updateCornerPositions();
+        }
+        
+        // Update corner handle positions
+        function updateCornerPositions() {
+            const container = document.getElementById('imageContainer');
+            const rect = container.getBoundingClientRect();
+            
+            for (const [key, pos] of Object.entries(corners)) {
+                const handle = document.getElementById(`corner-${key}`);
+                handle.style.left = `${pos.x * 100}%`;
+                handle.style.top = `${pos.y * 100}%`;
+            }
+        }
+        
+        // Setup corner dragging
+        function setupCornerDragging() {
+            const handles = document.querySelectorAll('.corner-handle');
+            const container = document.getElementById('imageContainer');
+            
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', startDrag);
+                handle.addEventListener('touchstart', startDrag, { passive: false });
+            });
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+        
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            activeCorner = e.target.dataset.corner;
+        }
+        
+        function drag(e) {
+            if (!isDragging || !activeCorner) return;
+            e.preventDefault();
+            
+            const container = document.getElementById('imageContainer');
+            const rect = container.getBoundingClientRect();
+            
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            let x = (clientX - rect.left) / rect.width;
+            let y = (clientY - rect.top) / rect.height;
+            
+            // Clamp values
+            x = Math.max(0.02, Math.min(0.98, x));
+            y = Math.max(0.02, Math.min(0.98, y));
+            
+            corners[activeCorner] = { x, y };
+            updateCornerPositions();
+            drawOverlay();
+        }
+        
+        function endDrag() {
+            isDragging = false;
+            activeCorner = null;
+        }
+        
+        // Draw overlay
+        function drawOverlay() {
+            const canvas = document.getElementById('overlayCanvas');
+            const container = document.getElementById('imageContainer');
+            const img = document.getElementById('uploadedImage');
+            
+            canvas.width = img.offsetWidth;
+            canvas.height = img.offsetHeight;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw semi-transparent overlay outside selection
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Clear the selected area
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.moveTo(corners.tl.x * canvas.width, corners.tl.y * canvas.height);
+            ctx.lineTo(corners.tr.x * canvas.width, corners.tr.y * canvas.height);
+            ctx.lineTo(corners.br.x * canvas.width, corners.br.y * canvas.height);
+            ctx.lineTo(corners.bl.x * canvas.width, corners.bl.y * canvas.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Draw border
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = '#e94560';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(corners.tl.x * canvas.width, corners.tl.y * canvas.height);
+            ctx.lineTo(corners.tr.x * canvas.width, corners.tr.y * canvas.height);
+            ctx.lineTo(corners.br.x * canvas.width, corners.br.y * canvas.height);
+            ctx.lineTo(corners.bl.x * canvas.width, corners.bl.y * canvas.height);
+            ctx.closePath();
+            ctx.stroke();
+        }
+        
+        // Auto detect edges using OpenCV
+        function autoDetectEdges() {
+            if (!cvReady) {
+                alert('Edge detection is still loading. Please try again in a moment.');
+                return;
+            }
+            
+            showLoading('Detecting painting edges...');
+            
+            setTimeout(() => {
+                try {
+                    const img = document.getElementById('uploadedImage');
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Use smaller size for processing
+                    const maxSize = 500;
+                    const scale = Math.min(maxSize / img.naturalWidth, maxSize / img.naturalHeight);
+                    canvas.width = img.naturalWidth * scale;
+                    canvas.height = img.naturalHeight * scale;
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // OpenCV processing
+                    let src = cv.imread(canvas);
+                    let gray = new cv.Mat();
+                    let blurred = new cv.Mat();
+                    let edges = new cv.Mat();
+                    let contours = new cv.MatVector();
+                    let hierarchy = new cv.Mat();
+                    
+                    // Convert to grayscale
+                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                    
+                    // Blur to reduce noise
+                    cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0);
+                    
+                    // Edge detection
+                    cv.Canny(blurred, edges, 50, 150);
+                    
+                    // Dilate to connect edges
+                    let kernel = cv.Mat.ones(3, 3, cv.CV_8U);
+                    cv.dilate(edges, edges, kernel);
+                    
+                    // Find contours
+                    cv.findContours(edges, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
+                    
+                    // Find largest quadrilateral
+                    let maxArea = 0;
+                    let bestContour = null;
+                    
+                    for (let i = 0; i < contours.size(); i++) {
+                        let contour = contours.get(i);
+                        let area = cv.contourArea(contour);
+                        
+                        if (area > maxArea) {
+                            let peri = cv.arcLength(contour, true);
+                            let approx = new cv.Mat();
+                            cv.approxPolyDP(contour, approx, 0.02 * peri, true);
+                            
+                            if (approx.rows === 4) {
+                                maxArea = area;
+                                bestContour = approx;
+                            } else {
+                                approx.delete();
+                            }
+                        }
+                    }
+                    
+                    if (bestContour && maxArea > (canvas.width * canvas.height * 0.1)) {
+                        // Extract corner points
+                        let points = [];
+                        for (let i = 0; i < 4; i++) {
+                            points.push({
+                                x: bestContour.data32S[i * 2] / canvas.width,
+                                y: bestContour.data32S[i * 2 + 1] / canvas.height
+                            });
+                        }
+                        
+                        // Sort points to tl, tr, br, bl order
+                        points.sort((a, b) => a.y - b.y);
+                        let topPoints = points.slice(0, 2).sort((a, b) => a.x - b.x);
+                        let bottomPoints = points.slice(2, 4).sort((a, b) => a.x - b.x);
+                        
+                        corners.tl = topPoints[0];
+                        corners.tr = topPoints[1];
+                        corners.bl = bottomPoints[0];
+                        corners.br = bottomPoints[1];
+                        
+                        updateCornerPositions();
+                        drawOverlay();
+                        
+                        bestContour.delete();
+                    }
+                    
+                    // Cleanup
+                    src.delete();
+                    gray.delete();
+                    blurred.delete();
+                    edges.delete();
+                    contours.delete();
+                    hierarchy.delete();
+                    kernel.delete();
+                    
+                    hideLoading();
+                } catch (err) {
+                    console.error('Edge detection error:', err);
+                    hideLoading();
+                }
+            }, 100);
+        }
+        
+        // Crop and continue
+        function cropAndContinue() {
+            showLoading('Cropping and correcting perspective...');
+            
+            setTimeout(() => {
+                try {
+                    const canvas = document.getElementById('processingCanvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Calculate output dimensions based on corner positions
+                    const img = originalImage;
+                    
+                    // Get actual pixel coordinates
+                    const srcPoints = [
+                        corners.tl.x * img.width, corners.tl.y * img.height,
+                        corners.tr.x * img.width, corners.tr.y * img.height,
+                        corners.br.x * img.width, corners.br.y * img.height,
+                        corners.bl.x * img.width, corners.bl.y * img.height
+                    ];
+                    
+                    // Calculate output size
+                    const topWidth = Math.sqrt(
+                        Math.pow(srcPoints[2] - srcPoints[0], 2) + 
+                        Math.pow(srcPoints[3] - srcPoints[1], 2)
+                    );
+                    const bottomWidth = Math.sqrt(
+                        Math.pow(srcPoints[4] - srcPoints[6], 2) + 
+                        Math.pow(srcPoints[5] - srcPoints[7], 2)
+                    );
+                    const leftHeight = Math.sqrt(
+                        Math.pow(srcPoints[6] - srcPoints[0], 2) + 
+                        Math.pow(srcPoints[7] - srcPoints[1], 2)
+                    );
+                    const rightHeight = Math.sqrt(
+                        Math.pow(srcPoints[4] - srcPoints[2], 2) + 
+                        Math.pow(srcPoints[5] - srcPoints[3], 2)
+                    );
+                    
+                    const outputWidth = Math.round(Math.max(topWidth, bottomWidth));
+                    const outputHeight = Math.round(Math.max(leftHeight, rightHeight));
+                    
+                    // Limit size
+                    const maxSize = 1024;
+                    const scale = Math.min(1, maxSize / Math.max(outputWidth, outputHeight));
+                    
+                    canvas.width = Math.round(outputWidth * scale);
+                    canvas.height = Math.round(outputHeight * scale);
+                    
+                    if (cvReady) {
+                        // Use OpenCV for perspective transform
+                        let src = cv.imread(img);
+                        let dst = new cv.Mat();
+                        
+                        let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, srcPoints);
+                        let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+                            0, 0,
+                            canvas.width, 0,
+                            canvas.width, canvas.height,
+                            0, canvas.height
+                        ]);
+                        
+                        let M = cv.getPerspectiveTransform(srcTri, dstTri);
+                        cv.warpPerspective(src, dst, M, new cv.Size(canvas.width, canvas.height));
+                        
+                        cv.imshow(canvas, dst);
+                        
+                        src.delete();
+                        dst.delete();
+                        srcTri.delete();
+                        dstTri.delete();
+                        M.delete();
+                    } else {
+                        // Fallback: simple crop without perspective correction
+                        const minX = Math.min(corners.tl.x, corners.bl.x) * img.width;
+                        const maxX = Math.max(corners.tr.x, corners.br.x) * img.width;
+                        const minY = Math.min(corners.tl.y, corners.tr.y) * img.height;
+                        const maxY = Math.max(corners.bl.y, corners.br.y) * img.height;
+                        
+                        ctx.drawImage(img, 
+                            minX, minY, maxX - minX, maxY - minY,
+                            0, 0, canvas.width, canvas.height
+                        );
+                    }
+                    
+                    croppedImageData = canvas.toDataURL('image/jpeg', 0.9);
+                    
+                    hideLoading();
+                    showStep3();
+                } catch (err) {
+                    console.error('Crop error:', err);
+                    hideLoading();
+                    alert('Error processing image. Please try again.');
+                }
+            }, 100);
+        }
+        
+        // Show step 3
+        function showStep3() {
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+            
+            document.getElementById('step2-indicator').classList.remove('active');
+            document.getElementById('step2-indicator').classList.add('completed');
+            document.getElementById('step3-indicator').classList.add('active');
+            
+            document.getElementById('originalPreview').src = originalImage.src;
+            document.getElementById('croppedPreview').src = croppedImageData;
+        }
+        
+        // Create and save
+        function createAndSave() {
+            const title = document.getElementById('artworkTitle').value.trim();
+            const artist = document.getElementById('artistName').value.trim();
+            const width = parseInt(document.getElementById('artWidth').value);
+            const height = parseInt(document.getElementById('artHeight').value);
+            const depth = parseInt(document.getElementById('artDepth').value) || 3;
+            
+            if (!title || !artist || !width || !height) {
+                alert('Please fill in all required fields (Title, Artist, Width, Height)');
+                return;
+            }
+            
+            showLoading('Creating AR model...');
+            
+            setTimeout(() => {
+                try {
+                    // Create GLB model
+                    const glbData = createPaintingGLB(croppedImageData, width, height);
+                    
+                    // Create artwork object
+                    const artwork = {
+                        id: Date.now(),
+                        title: title,
+                        artist: artist,
+                        medium: 'Digital Scan',
+                        style: document.getElementById('artStyle').value || 'Contemporary',
+                        price: document.getElementById('artPrice').value || 'Contact for Price',
+                        dimensions: { width, height, depth },
+                        image: croppedImageData,
+                        model: glbData,
+                        type: '2d',
+                        badge: 'New',
+                        category: document.getElementById('artCategory').value,
+                        tags: ['scanned', 'user-uploaded'],
+                        description: `Scanned artwork: ${title} by ${artist}`
+                    };
+                    
+                    // Save to localStorage
+                    let userArtworks = JSON.parse(localStorage.getItem('artspace_user_artworks') || '[]');
+                    userArtworks.push(artwork);
+                    localStorage.setItem('artspace_user_artworks', JSON.stringify(userArtworks));
+                    
+                    hideLoading();
+                    showSuccess();
+                } catch (err) {
+                    console.error('Error creating model:', err);
+                    hideLoading();
+                    alert('Error creating AR model. Please try again.');
+                }
+            }, 500);
+        }
+        
+        // Create painting GLB
+        function createPaintingGLB(imageDataUrl, widthCm, heightCm) {
+            // Convert cm to meters
+            const width = widthCm / 100;
+            const height = heightCm / 100;
+            const hw = width / 2;
+            const hh = height / 2;
+            
+            // Extract base64 image data
+            const base64Data = imageDataUrl.split(',')[1];
+            const imageBytes = atob(base64Data);
+            const imageArray = new Uint8Array(imageBytes.length);
+            for (let i = 0; i < imageBytes.length; i++) {
+                imageArray[i] = imageBytes.charCodeAt(i);
+            }
+            
+            // Create vertex data
+            const positions = new Float32Array([
+                -hw, -hh, 0,
+                 hw, -hh, 0,
+                 hw,  hh, 0,
+                -hw,  hh, 0
+            ]);
+            
+            const normals = new Float32Array([
+                0, 0, 1,
+                0, 0, 1,
+                0, 0, 1,
+                0, 0, 1
+            ]);
+            
+            const texcoords = new Float32Array([
+                0, 1,
+                1, 1,
+                1, 0,
+                0, 0
+            ]);
+            
+            const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
+            
+            // Calculate buffer sizes and offsets
+            const positionsBytes = new Uint8Array(positions.buffer);
+            const normalsBytes = new Uint8Array(normals.buffer);
+            const texcoordsBytes = new Uint8Array(texcoords.buffer);
+            const indicesBytes = new Uint8Array(indices.buffer);
+            
+            const positionsOffset = 0;
+            const normalsOffset = positionsBytes.length;
+            const texcoordsOffset = normalsOffset + normalsBytes.length;
+            const indicesOffset = texcoordsOffset + texcoordsBytes.length;
+            const imageOffset = indicesOffset + indicesBytes.length;
+            
+            // Combine all binary data
+            const totalLength = imageOffset + imageArray.length;
+            const padding = (4 - (totalLength % 4)) % 4;
+            const binaryBuffer = new Uint8Array(totalLength + padding);
+            
+            binaryBuffer.set(positionsBytes, positionsOffset);
+            binaryBuffer.set(normalsBytes, normalsOffset);
+            binaryBuffer.set(texcoordsBytes, texcoordsOffset);
+            binaryBuffer.set(indicesBytes, indicesOffset);
+            binaryBuffer.set(imageArray, imageOffset);
+            
+            // Create glTF JSON
+            const gltf = {
+                asset: { version: "2.0", generator: "ArtSpace Scanner" },
+                scene: 0,
+                scenes: [{ nodes: [0] }],
+                nodes: [{ mesh: 0, name: "Painting" }],
+                meshes: [{
+                    primitives: [{
+                        attributes: { POSITION: 0, NORMAL: 1, TEXCOORD_0: 2 },
+                        indices: 3,
+                        material: 0
+                    }]
+                }],
+                accessors: [
+                    { bufferView: 0, componentType: 5126, count: 4, type: "VEC3", min: [-hw, -hh, 0], max: [hw, hh, 0] },
+                    { bufferView: 1, componentType: 5126, count: 4, type: "VEC3" },
+                    { bufferView: 2, componentType: 5126, count: 4, type: "VEC2" },
+                    { bufferView: 3, componentType: 5123, count: 6, type: "SCALAR" }
+                ],
+                bufferViews: [
+                    { buffer: 0, byteOffset: positionsOffset, byteLength: positionsBytes.length, target: 34962 },
+                    { buffer: 0, byteOffset: normalsOffset, byteLength: normalsBytes.length, target: 34962 },
+                    { buffer: 0, byteOffset: texcoordsOffset, byteLength: texcoordsBytes.length, target: 34962 },
+                    { buffer: 0, byteOffset: indicesOffset, byteLength: indicesBytes.length, target: 34963 },
+                    { buffer: 0, byteOffset: imageOffset, byteLength: imageArray.length }
+                ],
+                buffers: [{ byteLength: binaryBuffer.length }],
+                materials: [{
+                    pbrMetallicRoughness: {
+                        baseColorTexture: { index: 0 },
+                        metallicFactor: 0,
+                        roughnessFactor: 0.8
+                    },
+                    doubleSided: true
+                }],
+                textures: [{ sampler: 0, source: 0 }],
+                samplers: [{ magFilter: 9729, minFilter: 9987, wrapS: 33071, wrapT: 33071 }],
+                images: [{ bufferView: 4, mimeType: "image/jpeg" }]
+            };
+            
+            // Convert JSON to bytes
+            const jsonString = JSON.stringify(gltf);
+            const jsonBytes = new TextEncoder().encode(jsonString);
+            const jsonPadding = (4 - (jsonBytes.length % 4)) % 4;
+            const paddedJsonBytes = new Uint8Array(jsonBytes.length + jsonPadding);
+            paddedJsonBytes.set(jsonBytes);
+            for (let i = 0; i < jsonPadding; i++) {
+                paddedJsonBytes[jsonBytes.length + i] = 0x20; // Space
+            }
+            
+            // Create GLB
+            const glbLength = 12 + 8 + paddedJsonBytes.length + 8 + binaryBuffer.length;
+            const glb = new ArrayBuffer(glbLength);
+            const glbView = new DataView(glb);
+            const glbBytes = new Uint8Array(glb);
+            
+            // Header
+            glbView.setUint32(0, 0x46546C67, true); // glTF
+            glbView.setUint32(4, 2, true); // Version
+            glbView.setUint32(8, glbLength, true); // Length
+            
+            // JSON chunk
+            glbView.setUint32(12, paddedJsonBytes.length, true);
+            glbView.setUint32(16, 0x4E4F534A, true); // JSON
+            glbBytes.set(paddedJsonBytes, 20);
+            
+            // Binary chunk
+            const binChunkOffset = 20 + paddedJsonBytes.length;
+            glbView.setUint32(binChunkOffset, binaryBuffer.length, true);
+            glbView.setUint32(binChunkOffset + 4, 0x004E4942, true); // BIN
+            glbBytes.set(binaryBuffer, binChunkOffset + 8);
+            
+            // Convert to data URL
+            let binary = '';
+            for (let i = 0; i < glbBytes.length; i++) {
+                binary += String.fromCharCode(glbBytes[i]);
+            }
+            return 'data:model/gltf-binary;base64,' + btoa(binary);
+        }
+        
+        // Show success
+        function showSuccess() {
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('successStep').classList.add('active');
+            
+            document.getElementById('step3-indicator').classList.remove('active');
+            document.getElementById('step3-indicator').classList.add('completed');
+        }
+        
+        // Reset functions
+        function resetToStep1() {
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').style.display = 'block';
+            
+            document.getElementById('step1-indicator').classList.add('active');
+            document.getElementById('step1-indicator').classList.remove('completed');
+            document.getElementById('step2-indicator').classList.remove('active');
+            
+            originalImage = null;
+        }
+        
+        function resetToStep2() {
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+            
+            document.getElementById('step2-indicator').classList.add('active');
+            document.getElementById('step2-indicator').classList.remove('completed');
+            document.getElementById('step3-indicator').classList.remove('active');
+        }
+        
+        function resetScanner() {
+            document.getElementById('successStep').classList.remove('active');
+            document.getElementById('step1').style.display = 'block';
+            
+            document.getElementById('step1-indicator').classList.add('active');
+            document.getElementById('step1-indicator').classList.remove('completed');
+            document.getElementById('step2-indicator').classList.remove('active');
+            document.getElementById('step2-indicator').classList.remove('completed');
+            document.getElementById('step3-indicator').classList.remove('active');
+            document.getElementById('step3-indicator').classList.remove('completed');
+            
+            originalImage = null;
+            croppedImageData = null;
+            
+            // Clear form
+            document.getElementById('artworkTitle').value = '';
+            document.getElementById('artistName').value = '';
+            document.getElementById('artWidth').value = '';
+            document.getElementById('artHeight').value = '';
+            document.getElementById('artStyle').value = '';
+            document.getElementById('artPrice').value = '';
+        }
+        
+        // Loading
+        function showLoading(text) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
