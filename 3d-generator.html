@@ -219,10 +219,7 @@
         #camera-video {
             width: 100%;
             display: block;
-        }
-        
-        #camera-video.front-camera {
-            transform: scaleX(-1);
+            /* No mirroring - we want to capture what we see */
         }
         
         #camera-canvas {
@@ -1230,12 +1227,7 @@
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                 cameraVideo.srcObject = currentStream;
                 
-                // Only mirror front camera, not back camera
-                if (facingMode === 'user') {
-                    cameraVideo.classList.add('front-camera');
-                } else {
-                    cameraVideo.classList.remove('front-camera');
-                }
+                // No mirroring for any camera - we want accurate capture
                 
                 cameraContainer.style.display = 'block';
                 cameraControls.style.display = 'flex';
@@ -1279,12 +1271,7 @@
             cameraCanvas.width = cameraVideo.videoWidth;
             cameraCanvas.height = cameraVideo.videoHeight;
             
-            // Only flip for front camera
-            if (facingMode === 'user') {
-                context.translate(cameraCanvas.width, 0);
-                context.scale(-1, 1);
-            }
-            
+            // Draw the image as-is, no flipping
             context.drawImage(cameraVideo, 0, 0);
             
             capturedImageData = cameraCanvas.toDataURL('image/jpeg', 0.9);
