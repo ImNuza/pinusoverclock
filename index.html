@@ -1038,13 +1038,7 @@
                     Shortlist
                     <span class="shortlist-count" id="shortlist-count">0</span>
                 </button>
-                <button class="ai-btn" onclick="toggleChat()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 16v-4M12 8h.01"/>
-                    </svg>
-                    AI Assistant
-                </button>
+                
             </div>
         </div>
     </header>
@@ -1202,40 +1196,6 @@
     </div>
     
     <!-- AI Chat Panel -->
-    <div class="chat-overlay" id="chat-overlay" onclick="toggleChat()"></div>
-    <div class="ai-chat-panel" id="ai-chat-panel">
-        <div class="chat-header">
-            <h3>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 16v-4M12 8h.01"/>
-                </svg>
-                AI Art Advisor
-            </h3>
-            <button class="chat-close" onclick="toggleChat()">×</button>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <div class="chat-message bot">
-                Hello! I'm your AI Art Advisor. Tell me about your space or what mood you're looking for, and I'll recommend perfect artworks for you. You can also ask about specific styles, colors, or themes!
-            </div>
-        </div>
-        <div class="chat-suggestions">
-            <button class="suggestion-chip" onclick="sendSuggestion('modern minimalist')">Modern minimalist</button>
-            <button class="suggestion-chip" onclick="sendSuggestion('colorful abstract')">Colorful abstract</button>
-            <button class="suggestion-chip" onclick="sendSuggestion('classic paintings')">Classic paintings</button>
-            <button class="suggestion-chip" onclick="sendSuggestion('living room art')">Living room</button>
-        </div>
-        <div class="chat-input-container">
-            <input type="text" class="chat-input" id="chat-input" placeholder="Describe what you're looking for..." onkeypress="handleChatKeypress(event)">
-            <button class="chat-send" onclick="sendMessage()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="22" y1="2" x2="11" y2="13"/>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-                </svg>
-            </button>
-        </div>
-    </div>
-    
     <!-- Toast -->
     <div class="toast" id="toast">
         <span id="toast-message">Added to shortlist!</span>
@@ -1260,6 +1220,7 @@
                 price: "$100,000,000+",
                 dimensions: { width: 92, height: 73, depth: 3 },
                 image: "images/starry_night.jpg",
+                model: "models/painting_starry_night.glb",
                 type: "2d",
                 badge: "Masterpiece",
                 category: "paintings",
@@ -1275,6 +1236,7 @@
                 price: "$80,000,000+",
                 dimensions: { width: 100, height: 100, depth: 3 },
                 image: "images/monet_water_lilies.jpg",
+                model: "models/painting_water_lilies.glb",
                 type: "2d",
                 badge: "Impressionist",
                 category: "paintings",
@@ -1290,6 +1252,7 @@
                 price: "$50,000,000+",
                 dimensions: { width: 81, height: 65, depth: 3 },
                 image: "images/van_gogh_cafe.jpg",
+                model: "models/painting_cafe_terrace.glb",
                 type: "2d",
                 badge: null,
                 category: "paintings",
@@ -1305,6 +1268,7 @@
                 price: "Priceless",
                 dimensions: { width: 53, height: 77, depth: 2 },
                 image: "images/mona_lisa.jpg",
+                model: "models/painting_mona_lisa.glb",
                 type: "2d",
                 badge: "Legendary",
                 category: "paintings",
@@ -1320,6 +1284,7 @@
                 price: "$15,000,000+",
                 dimensions: { width: 108, height: 158, depth: 3 },
                 image: "images/kandinsky_improvisation_4.jpg",
+                model: "models/painting_kandinsky.glb",
                 type: "2d",
                 badge: "Abstract",
                 category: "paintings",
@@ -1335,6 +1300,7 @@
                 price: "$4,500",
                 dimensions: { width: 80, height: 60, depth: 3 },
                 image: "images/abstract_blue.jpg",
+                model: "models/painting_abstract_blue.glb",
                 type: "2d",
                 badge: "New",
                 category: "paintings",
@@ -1350,6 +1316,7 @@
                 price: "$3,200",
                 dimensions: { width: 70, height: 50, depth: 3 },
                 image: "images/abstract_colorful.jpg",
+                model: "models/painting_abstract_colorful.glb",
                 type: "2d",
                 badge: null,
                 category: "paintings",
@@ -1365,6 +1332,7 @@
                 price: "$5,800",
                 dimensions: { width: 90, height: 60, depth: 3 },
                 image: "images/abstract_gold.jpg",
+                model: "models/painting_abstract_gold.glb",
                 type: "2d",
                 badge: "Luxury",
                 category: "paintings",
@@ -1380,6 +1348,7 @@
                 price: "$1,800",
                 dimensions: { width: 50, height: 70, depth: 2 },
                 image: "images/botanical_art.jpg",
+                model: "models/painting_botanical.glb",
                 type: "2d",
                 badge: null,
                 category: "paintings",
@@ -1395,6 +1364,7 @@
                 price: "$12,000",
                 dimensions: { width: 60, height: 80, depth: 3 },
                 image: "images/classic_portrait.jpg",
+                model: "models/painting_classic_portrait.glb",
                 type: "2d",
                 badge: "Classical",
                 category: "paintings",
@@ -1410,6 +1380,7 @@
                 price: "$6,500",
                 dimensions: { width: 100, height: 50, depth: 2 },
                 image: "images/japanese_art.jpg",
+                model: "models/painting_japanese.glb",
                 type: "2d",
                 badge: "Asian Art",
                 category: "paintings",
@@ -1425,6 +1396,7 @@
                 price: "$950",
                 dimensions: { width: 40, height: 60, depth: 2 },
                 image: "images/minimalist_lines.jpg",
+                model: "models/painting_minimalist.glb",
                 type: "2d",
                 badge: "Minimal",
                 category: "modern",
@@ -1440,6 +1412,7 @@
                 price: "$1,200",
                 dimensions: { width: 60, height: 60, depth: 2 },
                 image: "images/modern_geometric.jpg",
+                model: "models/painting_geometric.glb",
                 type: "2d",
                 badge: null,
                 category: "modern",
@@ -1455,6 +1428,7 @@
                 price: "$800",
                 dimensions: { width: 50, height: 70, depth: 2 },
                 image: "images/neon_art.jpg",
+                model: "models/painting_neon.glb",
                 type: "2d",
                 badge: "Digital",
                 category: "modern",
@@ -1470,6 +1444,7 @@
                 price: "$8,500",
                 dimensions: { width: 120, height: 80, depth: 4 },
                 image: "images/oil_painting.jpg",
+                model: "models/painting_oil_landscape.glb",
                 type: "2d",
                 badge: "Traditional",
                 category: "paintings",
@@ -1902,8 +1877,19 @@
             // Update viewer container
             const viewerContainer = document.getElementById('modal-viewer-container');
             if (is2D) {
+                // 2D paintings now use GLB models for AR support
                 viewerContainer.innerHTML = `
-                    <img src="${currentArtwork.image}" alt="${currentArtwork.title}" class="modal-image">
+                    <model-viewer
+                        id="modal-viewer"
+                        src="${currentArtwork.model}"
+                        poster="${currentArtwork.image}"
+                        alt="${currentArtwork.title}"
+                        camera-controls
+                        shadow-intensity="1"
+                        ar
+                        ar-modes="webxr scene-viewer quick-look"
+                        ar-scale="fixed"
+                    ></model-viewer>
                     <div class="real-size-indicator">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 3H3v18h18V3zM9 3v18M15 3v18M3 9h18M3 15h18"/>
@@ -2001,23 +1987,11 @@
         
         // Activate AR
         function activateAR() {
-            if (currentArtwork.type === '2d') {
-                // For 2D art, we need to use a different approach
-                // Open the image in a new AR-capable viewer or show instructions
-                alert('For 2D paintings, AR visualization shows the artwork as a framed piece on your wall. On iOS, this will open in AR Quick Look. On Android, it will use Scene Viewer.');
-                
-                // Try to trigger AR anyway through model-viewer if available
-                const viewer = document.querySelector('#modal-viewer-container model-viewer');
-                if (viewer && viewer.canActivateAR) {
-                    viewer.activateAR();
-                }
+            const viewer = document.querySelector('#modal-viewer-container model-viewer');
+            if (viewer && viewer.canActivateAR) {
+                viewer.activateAR();
             } else {
-                const viewer = document.querySelector('#modal-viewer-container model-viewer');
-                if (viewer && viewer.canActivateAR) {
-                    viewer.activateAR();
-                } else {
-                    alert('AR is not supported on this device. Please try on a mobile device with AR capabilities.');
-                }
+                alert('AR is not supported on this device. Please try on a mobile device with AR capabilities.');
             }
         }
         
