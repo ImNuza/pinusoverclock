@@ -440,21 +440,30 @@
             display: block;
         }
         
-        model-viewer {
-            width: 100%;
-            height: 300px;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
-            --poster-color: transparent;
+        .upload-to-gallery {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
         }
         
-        .model-loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #666;
+        .gallery-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+        
+        .gallery-upload-area:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .gallery-upload-area .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
         
         .download-btns {
@@ -656,36 +665,32 @@
         <!-- Result Section -->
         <div id="result-section" class="card result-section">
             <h3>🎉 Your 3D Model is Ready!</h3>
-            <model-viewer 
-                id="model-viewer"
-                camera-controls 
-                auto-rotate 
-                ar 
-                ar-modes="webxr scene-viewer quick-look"
-                ar-scale="auto"
-                ar-placement="floor"
-                shadow-intensity="1"
-                exposure="1"
-                loading="eager"
-                reveal="auto"
-            >
-                <div class="model-loading" slot="poster">
-                    <div class="spinner"></div>
-                    <p>Loading 3D model...</p>
-                </div>
-            </model-viewer>
+            <p style="color: #666; margin-bottom: 20px;">Download your 3D model file below, then upload it to add to your gallery.</p>
             
             <div class="download-btns">
-                <a id="download-glb" class="btn btn-primary" download>📥 Download GLB</a>
+                <a id="download-glb" class="btn btn-primary" download>📥 Download GLB File</a>
                 <a id="download-fbx" class="btn btn-secondary" download>📥 Download FBX</a>
                 <a id="download-obj" class="btn btn-secondary" download>📥 Download OBJ</a>
             </div>
             
-            <div class="gallery-form">
-                <h4>Add to Gallery</h4>
-                <input type="text" id="model-title" placeholder="Model title">
+            <div class="upload-to-gallery">
+                <h4>📤 Upload to Gallery</h4>
+                <p style="color: #888; font-size: 0.9rem; margin-bottom: 15px;">After downloading, upload the GLB file here to add it to your gallery and view in AR.</p>
+                
+                <div class="gallery-upload-area" id="gallery-upload-area" onclick="document.getElementById('gallery-file-input').click()">
+                    <input type="file" id="gallery-file-input" accept=".glb,.gltf" style="display: none;" onchange="handleGalleryUpload(event)">
+                    <div class="upload-icon">📁</div>
+                    <p>Click to upload GLB file</p>
+                    <span style="color: #888; font-size: 0.85rem;">or drag and drop</span>
+                </div>
+                
+                <div id="uploaded-file-info" style="display: none; margin-top: 15px; padding: 15px; background: #e8f5e9; border-radius: 10px;">
+                    <p style="color: #2e7d32; font-weight: 600;">✅ File uploaded: <span id="uploaded-file-name"></span></p>
+                </div>
+                
+                <input type="text" id="model-title" placeholder="Model title" style="margin-top: 15px;">
                 <input type="text" id="model-artist" placeholder="Artist name (optional)">
-                <button class="btn btn-primary" style="width: 100%;" onclick="addToGallery()">
+                <button class="btn btn-primary" style="width: 100%;" onclick="addUploadedToGallery()" id="add-gallery-btn" disabled>
                     Add to Gallery
                 </button>
             </div>
@@ -956,7 +961,7 @@
             document.getElementById('progress-section').classList.remove('active');
             document.getElementById('result-section').classList.add('active');
             
-            // Store URLs first
+            // Store URLs for download
             modelUrls = { glb: glbUrl, fbx: fbxUrl, obj: objUrl, type: type };
             
             // Set download links
@@ -976,72 +981,45 @@
                 document.getElementById('download-obj').style.display = 'none';
             }
             
-            // Load model into viewer
-            loadModelIntoViewer(glbUrl);
+            // Reset upload area
+            document.getElementById('uploaded-file-info').style.display = 'none';
+            document.getElementById('add-gallery-btn').disabled = true;
+            uploadedModelBlob = null;
             
             // Scroll to result
             document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
         }
         
-        // Load model into viewer with retry logic
-        async function loadModelIntoViewer(glbUrl) {
-            const viewer = document.getElementById('model-viewer');
-            const loadingDiv = viewer.querySelector('.model-loading');
+        // Uploaded model blob storage
+        let uploadedModelBlob = null;
+        
+        // Handle gallery upload
+        function handleGalleryUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            console.log('Loading model:', glbUrl);
-            
-            // Show loading state
-            if (loadingDiv) loadingDiv.style.display = 'flex';
-            
-            // Clear existing source
-            viewer.removeAttribute('src');
-            
-            // For blob URLs (imported files), load directly
-            if (glbUrl.startsWith('blob:')) {
-                viewer.setAttribute('src', glbUrl);
+            if (!file.name.match(/\.(glb|gltf)$/i)) {
+                showError('Please upload a GLB or GLTF file');
                 return;
             }
             
-            // For Meshy.ai URLs, try to fetch and create blob
-            try {
-                const response = await fetch(glbUrl);
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
-                    viewer.setAttribute('src', blobUrl);
-                    console.log('Model loaded via blob URL');
-                } else {
-                    // Fallback: try direct URL
-                    console.log('Fetch failed, trying direct URL');
-                    viewer.setAttribute('src', glbUrl);
-                }
-            } catch (err) {
-                console.log('Fetch error, trying direct URL:', err);
-                // Fallback: try direct URL anyway
-                viewer.setAttribute('src', glbUrl);
+            uploadedModelBlob = URL.createObjectURL(file);
+            
+            document.getElementById('uploaded-file-name').textContent = file.name;
+            document.getElementById('uploaded-file-info').style.display = 'block';
+            document.getElementById('add-gallery-btn').disabled = false;
+            
+            // Auto-fill title from filename
+            const titleInput = document.getElementById('model-title');
+            if (!titleInput.value) {
+                titleInput.value = file.name.replace(/\.(glb|gltf)$/i, '');
             }
-            
-            // Add load/error listeners
-            viewer.addEventListener('load', () => {
-                console.log('Model loaded successfully');
-                if (loadingDiv) loadingDiv.style.display = 'none';
-            }, { once: true });
-            
-            viewer.addEventListener('error', (e) => {
-                console.error('Model viewer error:', e);
-                if (loadingDiv) {
-                    loadingDiv.innerHTML = '<p style="color:#e94560;">Preview unavailable</p><p style="font-size:0.9rem;">Download the GLB file to view</p>';
-                }
-            }, { once: true });
         }
         
-        // Add to gallery
-        function addToGallery() {
-            console.log('addToGallery called');
-            console.log('modelUrls:', modelUrls);
-            
-            if (!modelUrls || !modelUrls.glb) {
-                showError('No model to add. Please generate or import a model first.');
+        // Add uploaded file to gallery
+        function addUploadedToGallery() {
+            if (!uploadedModelBlob) {
+                showError('Please upload a GLB file first');
                 return;
             }
             
@@ -1053,25 +1031,57 @@
                 title: title,
                 artist: artist,
                 type: '3d',
-                model: modelUrls.glb,
-                source: modelUrls.type === 'generated' ? 'AI Generated' : 'Imported',
+                model: uploadedModelBlob,
+                source: 'AI Generated',
                 addedAt: new Date().toISOString()
             };
             
-            console.log('Saving artwork:', artwork);
-            
             try {
-                // Save to localStorage
                 const saved = JSON.parse(localStorage.getItem('artspace_user_artworks') || '[]');
                 saved.push(artwork);
                 localStorage.setItem('artspace_user_artworks', JSON.stringify(saved));
                 
                 alert('✅ Added to gallery! Go back to see your model.');
+                
+                // Reset
+                document.getElementById('uploaded-file-info').style.display = 'none';
+                document.getElementById('add-gallery-btn').disabled = true;
+                document.getElementById('model-title').value = '';
+                document.getElementById('model-artist').value = '';
             } catch (err) {
                 console.error('Error saving to gallery:', err);
                 showError('Failed to save to gallery: ' + err.message);
             }
         }
+        
+        // Drag and drop for gallery upload
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('gallery-upload-area');
+            if (uploadArea) {
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.style.borderColor = '#10b981';
+                    uploadArea.style.background = '#f0fdf4';
+                });
+                
+                uploadArea.addEventListener('dragleave', () => {
+                    uploadArea.style.borderColor = '#ccc';
+                    uploadArea.style.background = '#fafafa';
+                });
+                
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.style.borderColor = '#ccc';
+                    uploadArea.style.background = '#fafafa';
+                    
+                    const file = e.dataTransfer.files[0];
+                    if (file) {
+                        document.getElementById('gallery-file-input').files = e.dataTransfer.files;
+                        handleGalleryUpload({ target: { files: [file] } });
+                    }
+                });
+            }
+        });
         
         // Show error
         function showError(msg) {
