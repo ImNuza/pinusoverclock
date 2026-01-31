@@ -2073,21 +2073,21 @@
                         <span class="artwork-type-badge type-${art.type}">${is2D ? '2D Painting' : '3D Sculpture'}</span>
                         <div class="artwork-dimensions">
                             <div class="dimension">
-                                <div class="dimension-value">${art.dimensions.width}</div>
+                                <div class="dimension-value">${art.dimensions?.width || '-'}</div>
                                 <div class="dimension-label">W (cm)</div>
                             </div>
                             <div class="dimension">
-                                <div class="dimension-value">${art.dimensions.height}</div>
+                                <div class="dimension-value">${art.dimensions?.height || '-'}</div>
                                 <div class="dimension-label">H (cm)</div>
                             </div>
                             ${!is2D ? `
                             <div class="dimension">
-                                <div class="dimension-value">${art.dimensions.depth}</div>
+                                <div class="dimension-value">${art.dimensions?.depth || '-'}</div>
                                 <div class="dimension-label">D (cm)</div>
                             </div>
                             ` : ''}
                         </div>
-                        <div class="artwork-price">${art.price}</div>
+                        <div class="artwork-price">${art.price || 'Price on request'}</div>
                         <div class="artwork-actions">
                             <button class="btn btn-primary" onclick="event.stopPropagation(); openModal(${art.id})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2118,13 +2118,13 @@
             if (currentSearch) {
                 filteredArtworks = filteredArtworks.filter(a => {
                     const searchFields = [
-                        a.title,
-                        a.artist,
-                        a.style,
-                        a.category,
-                        a.medium,
-                        a.type,
-                        ...a.tags
+                        a.title || '',
+                        a.artist || '',
+                        a.style || '',
+                        a.category || '',
+                        a.medium || '',
+                        a.type || '',
+                        ...(a.tags || [])
                     ].join(' ').toLowerCase();
                     return searchFields.includes(currentSearch);
                 });
@@ -2175,15 +2175,15 @@
             
             const is2D = currentArtwork.type === '2d';
             
-            document.getElementById('modal-title').textContent = currentArtwork.title;
-            document.getElementById('modal-artist').textContent = currentArtwork.artist;
+            document.getElementById('modal-title').textContent = currentArtwork.title || 'Untitled';
+            document.getElementById('modal-artist').textContent = currentArtwork.artist || 'Unknown Artist';
             document.getElementById('modal-type').textContent = is2D ? '2D Painting' : '3D Sculpture';
-            document.getElementById('modal-medium').textContent = currentArtwork.medium;
-            document.getElementById('modal-style').textContent = currentArtwork.style;
-            document.getElementById('modal-price').textContent = currentArtwork.price;
-            document.getElementById('modal-width').textContent = currentArtwork.dimensions.width;
-            document.getElementById('modal-height').textContent = currentArtwork.dimensions.height;
-            document.getElementById('modal-depth').textContent = currentArtwork.dimensions.depth;
+            document.getElementById('modal-medium').textContent = currentArtwork.medium || 'Digital';
+            document.getElementById('modal-style').textContent = currentArtwork.style || 'Contemporary';
+            document.getElementById('modal-price').textContent = currentArtwork.price || 'Price on request';
+            document.getElementById('modal-width').textContent = currentArtwork.dimensions?.width || '-';
+            document.getElementById('modal-height').textContent = currentArtwork.dimensions?.height || '-';
+            document.getElementById('modal-depth').textContent = currentArtwork.dimensions?.depth || '-';
             
             // Update viewer container
             const viewerContainer = document.getElementById('modal-viewer-container');

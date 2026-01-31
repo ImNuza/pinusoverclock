@@ -856,12 +856,36 @@
             updateImageGrid();
         }
         
-        // Handle GLB upload
+        // Handle GLB upload (Import tab)
         function handleGLB(file) {
             if (!file) return;
             
             const url = URL.createObjectURL(file);
-            showResult(url, null, null, 'imported');
+            
+            // Show result section
+            document.getElementById('options-card').classList.add('hidden');
+            document.getElementById('progress-section').classList.remove('active');
+            document.getElementById('result-section').classList.add('active');
+            
+            // Set download link
+            document.getElementById('download-glb').href = url;
+            document.getElementById('download-fbx').style.display = 'none';
+            document.getElementById('download-obj').style.display = 'none';
+            
+            // Auto-fill the gallery upload area
+            uploadedModelBlob = url;
+            document.getElementById('uploaded-file-name').textContent = file.name;
+            document.getElementById('uploaded-file-info').style.display = 'block';
+            document.getElementById('add-gallery-btn').disabled = false;
+            
+            // Auto-fill title from filename
+            const titleInput = document.getElementById('model-title');
+            if (!titleInput.value) {
+                titleInput.value = file.name.replace(/\.(glb|gltf)$/i, '');
+            }
+            
+            // Scroll to result
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
         }
         
         // Generate 3D model
@@ -1026,13 +1050,29 @@
             const title = document.getElementById('model-title').value || 'Untitled Model';
             const artist = document.getElementById('model-artist').value || 'Unknown Artist';
             
+            // Determine if this is from Meshy generation or import
+            const isFromMeshy = uploadedModelBlob.includes('meshy') || uploadedModelBlob.includes('http');
+            const badgeText = isFromMeshy ? 'AI Generated' : 'Imported';
+            
             const artwork = {
-                id: 'user-' + Date.now(),
+                id: Date.now(),
                 title: title,
                 artist: artist,
                 type: '3d',
                 model: uploadedModelBlob,
-                source: 'AI Generated',
+                image: '',
+                badge: badgeText,
+                category: 'sculpture',
+                style: 'Digital',
+                medium: '3D Model',
+                price: 'Custom',
+                dimensions: {
+                    width: 20,
+                    height: 20,
+                    depth: 20
+                },
+                tags: ['3d', 'custom', badgeText.toLowerCase().replace(' ', '-')],
+                source: badgeText,
                 addedAt: new Date().toISOString()
             };
             
