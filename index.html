@@ -2187,6 +2187,20 @@
         // Initialize
         loadUserArtworks();
         renderGallery();
+        
+        // Handle deep linking from AI Advisor
+        const urlParams = new URLSearchParams(window.location.search);
+        const artworkId = urlParams.get('artwork');
+        if (artworkId) {
+            // Wait for gallery to render, then open the artwork
+            setTimeout(() => {
+                const id = parseInt(artworkId) || artworkId;
+                const artwork = artworks.find(a => a.id === id || a.id === artworkId);
+                if (artwork) {
+                    openModal(artwork.id);
+                }
+            }, 500);
+        }
     </script>
 </body>
 </html>

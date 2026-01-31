@@ -956,27 +956,10 @@
             document.getElementById('progress-section').classList.remove('active');
             document.getElementById('result-section').classList.add('active');
             
-            const viewer = document.getElementById('model-viewer');
+            // Store URLs first
+            modelUrls = { glb: glbUrl, fbx: fbxUrl, obj: objUrl, type: type };
             
-            // Clear any existing source first
-            viewer.removeAttribute('src');
-            
-            // Set the new source after a small delay
-            setTimeout(() => {
-                viewer.setAttribute('src', glbUrl);
-                console.log('Model viewer src set to:', glbUrl);
-            }, 100);
-            
-            // Add load event listener
-            viewer.addEventListener('load', () => {
-                console.log('Model loaded successfully');
-            }, { once: true });
-            
-            viewer.addEventListener('error', (e) => {
-                console.error('Model viewer error:', e);
-                showError('Failed to load 3D model preview. You can still download it.');
-            }, { once: true });
-            
+            // Set download links
             document.getElementById('download-glb').href = glbUrl;
             
             if (fbxUrl) {
@@ -993,10 +976,63 @@
                 document.getElementById('download-obj').style.display = 'none';
             }
             
-            modelUrls = { glb: glbUrl, fbx: fbxUrl, obj: objUrl, type: type };
+            // Load model into viewer
+            loadModelIntoViewer(glbUrl);
             
             // Scroll to result
             document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Load model into viewer with retry logic
+        async function loadModelIntoViewer(glbUrl) {
+            const viewer = document.getElementById('model-viewer');
+            const loadingDiv = viewer.querySelector('.model-loading');
+            
+            console.log('Loading model:', glbUrl);
+            
+            // Show loading state
+            if (loadingDiv) loadingDiv.style.display = 'flex';
+            
+            // Clear existing source
+            viewer.removeAttribute('src');
+            
+            // For blob URLs (imported files), load directly
+            if (glbUrl.startsWith('blob:')) {
+                viewer.setAttribute('src', glbUrl);
+                return;
+            }
+            
+            // For Meshy.ai URLs, try to fetch and create blob
+            try {
+                const response = await fetch(glbUrl);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    viewer.setAttribute('src', blobUrl);
+                    console.log('Model loaded via blob URL');
+                } else {
+                    // Fallback: try direct URL
+                    console.log('Fetch failed, trying direct URL');
+                    viewer.setAttribute('src', glbUrl);
+                }
+            } catch (err) {
+                console.log('Fetch error, trying direct URL:', err);
+                // Fallback: try direct URL anyway
+                viewer.setAttribute('src', glbUrl);
+            }
+            
+            // Add load/error listeners
+            viewer.addEventListener('load', () => {
+                console.log('Model loaded successfully');
+                if (loadingDiv) loadingDiv.style.display = 'none';
+            }, { once: true });
+            
+            viewer.addEventListener('error', (e) => {
+                console.error('Model viewer error:', e);
+                if (loadingDiv) {
+                    loadingDiv.innerHTML = '<p style="color:#e94560;">Preview unavailable</p><p style="font-size:0.9rem;">Download the GLB file to view</p>';
+                }
+            }, { once: true });
         }
         
         // Add to gallery
@@ -1026,9 +1062,9 @@
             
             try {
                 // Save to localStorage
-                const saved = JSON.parse(localStorage.getItem('userArtworks') || '[]');
+                const saved = JSON.parse(localStorage.getItem('artspace_user_artworks') || '[]');
                 saved.push(artwork);
-                localStorage.setItem('userArtworks', JSON.stringify(saved));
+                localStorage.setItem('artspace_user_artworks', JSON.stringify(saved));
                 
                 alert('✅ Added to gallery! Go back to see your model.');
             } catch (err) {

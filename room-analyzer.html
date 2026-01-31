@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Model Viewer for 3D sculptures -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    
     <style>
         :root {
             --primary: #1a1a2e;
@@ -1304,20 +1307,20 @@
         // Artwork Database
         const artworks = [
             { id: 101, title: "Starry Night", artist: "Vincent van Gogh", image: "images/starry_night.jpg", model: "models/painting_starry_night.glb", style: "Post-Impressionism", colors: ["blue", "yellow"], mood: ["dramatic", "expressive"], type: "classical", price: "$2,500" },
-            { id: 102, title: "Water Lilies", artist: "Claude Monet", image: "images/water_lilies.jpg", model: "models/painting_water_lilies.glb", style: "Impressionism", colors: ["green", "blue", "pink"], mood: ["calm", "serene"], type: "nature", price: "$3,200" },
-            { id: 103, title: "Café Terrace at Night", artist: "Vincent van Gogh", image: "images/cafe_terrace.jpg", model: "models/painting_cafe_terrace.glb", style: "Post-Impressionism", colors: ["yellow", "blue"], mood: ["cozy", "warm"], type: "classical", price: "$2,800" },
+            { id: 102, title: "Water Lilies", artist: "Claude Monet", image: "images/monet_water_lilies.jpg", model: "models/painting_water_lilies.glb", style: "Impressionism", colors: ["green", "blue", "pink"], mood: ["calm", "serene"], type: "nature", price: "$3,200" },
+            { id: 103, title: "Café Terrace at Night", artist: "Vincent van Gogh", image: "images/van_gogh_cafe.jpg", model: "models/painting_cafe_terrace.glb", style: "Post-Impressionism", colors: ["yellow", "blue"], mood: ["cozy", "warm"], type: "classical", price: "$2,800" },
             { id: 104, title: "Mona Lisa", artist: "Leonardo da Vinci", image: "images/mona_lisa.jpg", model: "models/painting_mona_lisa.glb", style: "Renaissance", colors: ["brown", "beige"], mood: ["sophisticated", "elegant"], type: "classical", price: "$5,000" },
-            { id: 105, title: "Improvisation 4", artist: "Wassily Kandinsky", image: "images/kandinsky.jpg", model: "models/painting_kandinsky.glb", style: "Abstract", colors: ["multicolor"], mood: ["energetic", "vibrant"], type: "abstract", price: "$4,500" },
+            { id: 105, title: "Improvisation 4", artist: "Wassily Kandinsky", image: "images/kandinsky_improvisation_4.jpg", model: "models/painting_kandinsky.glb", style: "Abstract", colors: ["multicolor"], mood: ["energetic", "vibrant"], type: "abstract", price: "$4,500" },
             { id: 106, title: "Abstract Blue Composition", artist: "Contemporary Artist", image: "images/abstract_blue.jpg", model: "models/painting_abstract_blue.glb", style: "Abstract", colors: ["blue", "white"], mood: ["calm", "modern"], type: "abstract", price: "$1,800" },
-            { id: 107, title: "Colorful Abstract", artist: "Modern Studio", image: "images/colorful_abstract.jpg", model: "models/painting_colorful_abstract.glb", style: "Abstract", colors: ["multicolor"], mood: ["energetic", "playful"], type: "bold", price: "$2,200" },
-            { id: 108, title: "Golden Abstract", artist: "Luxe Arts", image: "images/golden_abstract.jpg", model: "models/painting_golden_abstract.glb", style: "Contemporary", colors: ["yellow", "beige", "brown"], mood: ["sophisticated", "warm"], type: "abstract", price: "$3,500" },
-            { id: 109, title: "Botanical Study", artist: "Nature Arts", image: "images/botanical.jpg", model: "models/painting_botanical.glb", style: "Botanical", colors: ["green"], mood: ["calm", "natural"], type: "nature", price: "$1,200" },
-            { id: 110, title: "Classic Portrait", artist: "Portrait Masters", image: "images/portrait.jpg", model: "models/painting_portrait.glb", style: "Classical", colors: ["brown", "beige"], mood: ["sophisticated", "traditional"], type: "classical", price: "$4,000" },
-            { id: 111, title: "The Great Wave", artist: "Hokusai", image: "images/great_wave.jpg", model: "models/painting_great_wave.glb", style: "Japanese", colors: ["blue", "white"], mood: ["dramatic", "powerful"], type: "classical", price: "$2,900" },
-            { id: 112, title: "Minimalist Lines", artist: "Line Studio", image: "images/minimalist.jpg", model: "models/painting_minimalist.glb", style: "Minimalist", colors: ["black", "white"], mood: ["calm", "modern"], type: "abstract", price: "$1,500" },
-            { id: 113, title: "Geometric Patterns", artist: "Geo Arts", image: "images/geometric.jpg", model: "models/painting_geometric.glb", style: "Geometric", colors: ["multicolor"], mood: ["energetic", "modern"], type: "bold", price: "$1,800" },
-            { id: 114, title: "Neon Dreams", artist: "Digital Visions", image: "images/neon.jpg", model: "models/painting_neon.glb", style: "Digital", colors: ["pink", "blue", "purple"], mood: ["energetic", "vibrant"], type: "bold", price: "$2,100" },
-            { id: 115, title: "Traditional Oil Landscape", artist: "Heritage Arts", image: "images/landscape.jpg", model: "models/painting_landscape.glb", style: "Traditional", colors: ["green", "blue", "brown"], mood: ["calm", "peaceful"], type: "nature", price: "$3,800" },
+            { id: 107, title: "Colorful Abstract", artist: "Modern Studio", image: "images/abstract_colorful.jpg", model: "models/painting_colorful_abstract.glb", style: "Abstract", colors: ["multicolor"], mood: ["energetic", "playful"], type: "bold", price: "$2,200" },
+            { id: 108, title: "Golden Abstract", artist: "Luxe Arts", image: "images/abstract_gold.jpg", model: "models/painting_golden_abstract.glb", style: "Contemporary", colors: ["yellow", "beige", "brown"], mood: ["sophisticated", "warm"], type: "abstract", price: "$3,500" },
+            { id: 109, title: "Botanical Study", artist: "Nature Arts", image: "images/botanical_art.jpg", model: "models/painting_botanical.glb", style: "Botanical", colors: ["green"], mood: ["calm", "natural"], type: "nature", price: "$1,200" },
+            { id: 110, title: "Classic Portrait", artist: "Portrait Masters", image: "images/classic_portrait.jpg", model: "models/painting_portrait.glb", style: "Classical", colors: ["brown", "beige"], mood: ["sophisticated", "traditional"], type: "classical", price: "$4,000" },
+            { id: 111, title: "The Great Wave", artist: "Hokusai", image: "images/japanese_art.jpg", model: "models/painting_great_wave.glb", style: "Japanese", colors: ["blue", "white"], mood: ["dramatic", "powerful"], type: "classical", price: "$2,900" },
+            { id: 112, title: "Minimalist Lines", artist: "Line Studio", image: "images/minimalist_lines.jpg", model: "models/painting_minimalist.glb", style: "Minimalist", colors: ["black", "white"], mood: ["calm", "modern"], type: "abstract", price: "$1,500" },
+            { id: 113, title: "Geometric Patterns", artist: "Geo Arts", image: "images/modern_geometric.jpg", model: "models/painting_geometric.glb", style: "Geometric", colors: ["multicolor"], mood: ["energetic", "modern"], type: "bold", price: "$1,800" },
+            { id: 114, title: "Neon Dreams", artist: "Digital Visions", image: "images/neon_art.jpg", model: "models/painting_neon.glb", style: "Digital", colors: ["pink", "blue", "purple"], mood: ["energetic", "vibrant"], type: "bold", price: "$2,100" },
+            { id: 115, title: "Traditional Oil Landscape", artist: "Heritage Arts", image: "images/oil_painting.jpg", model: "models/painting_landscape.glb", style: "Traditional", colors: ["green", "blue", "brown"], mood: ["calm", "peaceful"], type: "nature", price: "$3,800" },
             // 3D Sculptures
             { id: 201, title: "Decorative Pot", artist: "Ceramic Studio", image: "models/FixedScalingPot.glb", model: "models/FixedScalingPot.glb", style: "Decorative", colors: ["brown", "beige"], mood: ["warm", "natural"], type: "sculpture", price: "$450" },
             { id: 202, title: "Abstract Form I", artist: "Modern Sculptor", image: "models/Object006.glb", model: "models/Object006.glb", style: "Abstract", colors: ["white", "gray"], mood: ["modern", "sophisticated"], type: "sculpture", price: "$1,200" },
@@ -1679,20 +1682,34 @@ Only respond with the JSON, no other text.`;
                     const card = document.createElement('div');
                     card.className = 'recommendation-card';
                     
-                    // Determine image source
-                    const imgSrc = artwork.image.startsWith('models/') 
-                        ? 'https://via.placeholder.com/150x150/f5f5f5/333?text=3D+Model' 
-                        : artwork.image;
+                    // Determine image source - use placeholder for 3D models, actual path for images
+                    let imgSrc;
+                    if (artwork.image.startsWith('models/')) {
+                        // 3D model - show a nice placeholder
+                        imgSrc = `https://via.placeholder.com/300x200/e8e8e8/666?text=${encodeURIComponent(artwork.title)}`;
+                    } else if (artwork.image.startsWith('images/')) {
+                        // Local image - use the path
+                        imgSrc = artwork.image;
+                    } else {
+                        // External URL or other
+                        imgSrc = artwork.image;
+                    }
+                    
+                    // Create artwork preview - for 3D models show model-viewer, for images show img
+                    const is3D = artwork.type === 'sculpture' || artwork.model.endsWith('.glb');
+                    const previewHtml = is3D 
+                        ? `<model-viewer src="${artwork.model}" camera-controls auto-rotate style="width:100%;height:200px;background:#f0f0f0;border-radius:10px;"></model-viewer>`
+                        : `<img src="${imgSrc}" alt="${artwork.title}" class="rec-image" onerror="this.src='https://via.placeholder.com/300x200/f5f5f5/333?text=Art'">`;
                     
                     card.innerHTML = `
-                        <img src="${imgSrc}" alt="${artwork.title}" class="rec-image" onerror="this.src='https://via.placeholder.com/150x150/f5f5f5/333?text=Art'">
+                        ${previewHtml}
                         <div class="rec-info">
                             <div class="rec-match">⭐ ${rec.match}% Match</div>
                             <h3 class="rec-title">${artwork.title}</h3>
                             <p class="rec-artist">by ${artwork.artist}</p>
                             <p class="rec-reason">${rec.reason}</p>
                             <p style="font-weight: 600; color: var(--gold); margin-top: 5px;">${artwork.price}</p>
-                            <a href="index.html" class="view-ar-btn">
+                            <a href="index.html?artwork=${artwork.id}" class="view-ar-btn">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                     <circle cx="12" cy="12" r="3"/>
