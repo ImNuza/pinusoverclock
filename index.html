@@ -710,6 +710,37 @@
             font-style: italic;
         }
         
+        .comparison-thumb.original-artwork {
+            border-color: var(--gold);
+            position: relative;
+        }
+        
+        .comparison-thumb .original-badge {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: var(--primary);
+            font-size: 8px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+        }
+        
+        .btn-delete {
+            background: #ff4757 !important;
+            color: white !important;
+        }
+        
+        .btn-delete:hover {
+            background: #ff3344 !important;
+            transform: scale(1.02);
+        }
+        
         .modal-actions {
             display: flex;
             gap: 15px;
@@ -1212,6 +1243,15 @@
                             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                         </svg>
                         <span id="shortlist-btn-text">Add to Shortlist</span>
+                    </button>
+                    <button class="btn btn-delete" id="modal-delete-btn" onclick="deleteFromModal()" style="display: none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                        </svg>
+                        Delete Artwork
                     </button>
                 </div>
             </div>
@@ -2168,10 +2208,16 @@
             renderGallery(category);
         }
         
+        // Track the original artwork that was opened (for quick compare feature)
+        let originalArtwork = null;
+        
         // Open modal
         function openModal(artworkId) {
             currentArtwork = artworks.find(a => a.id === artworkId);
             if (!currentArtwork) return;
+            
+            // Store the original artwork so user can switch back to it
+            originalArtwork = { ...currentArtwork };
             
             const is2D = currentArtwork.type === '2d';
             
@@ -2236,6 +2282,13 @@
             // Render comparison thumbnails
             renderComparisonThumbnails();
             
+            // Show/hide delete button based on whether it's a user-uploaded artwork
+            const deleteBtn = document.getElementById('modal-delete-btn');
+            if (deleteBtn) {
+                const isUserUploaded = currentArtwork.tags && currentArtwork.tags.includes('user-uploaded');
+                deleteBtn.style.display = isUserUploaded ? 'flex' : 'none';
+            }
+            
             document.getElementById('modal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -2260,33 +2313,126 @@
             const emptyMsg = document.getElementById('comparison-empty');
             const shortlistedArtworks = getShortlistedArtworks();
             
-            const otherArtworks = shortlistedArtworks.filter(a => a.id !== currentArtwork.id);
+            // Build list of artworks to show in comparison:
+            // 1. Include the original artwork (so user can switch back)
+            // 2. Include all shortlisted artworks except the currently displayed one
+            let comparisonArtworks = [];
             
-            if (otherArtworks.length === 0) {
+            // Add original artwork if it's different from current
+            if (originalArtwork && currentArtwork && originalArtwork.id !== currentArtwork.id) {
+                comparisonArtworks.push({ ...originalArtwork, isOriginal: true });
+            }
+            
+            // Add shortlisted artworks (excluding current)
+            shortlistedArtworks.forEach(art => {
+                if (art.id !== currentArtwork.id) {
+                    // Avoid duplicates with original
+                    const isDuplicate = originalArtwork && art.id === originalArtwork.id;
+                    if (!isDuplicate) {
+                        comparisonArtworks.push(art);
+                    }
+                }
+            });
+            
+            if (comparisonArtworks.length === 0) {
                 container.innerHTML = '';
                 emptyMsg.style.display = 'block';
                 return;
             }
             
             emptyMsg.style.display = 'none';
-            container.innerHTML = otherArtworks.map(art => {
+            container.innerHTML = comparisonArtworks.map(art => {
                 const is2D = art.type === '2d';
                 return `
-                    <div class="comparison-thumb" onclick="switchToArtwork(${art.id})" title="${art.title}">
+                    <div class="comparison-thumb ${art.isOriginal ? 'original-artwork' : ''}" 
+                         onclick="switchToArtwork(${art.id})" 
+                         title="${art.title}${art.isOriginal ? ' (Original)' : ''}">
                         ${is2D 
                             ? `<img src="${art.image}" alt="${art.title}">`
                             : `<model-viewer src="${art.model}" alt="${art.title}" auto-rotate rotation-per-second="30deg" interaction-prompt="none"></model-viewer>`
                         }
+                        ${art.isOriginal ? '<span class="original-badge">Original</span>' : ''}
                     </div>
                 `;
             }).join('');
         }
         
-        // Switch artwork
+        // Switch artwork (preserves original artwork reference)
         function switchToArtwork(artworkId) {
-            closeModal();
-            setTimeout(() => openModal(artworkId), 100);
-            showToast('Switched artwork for comparison', 'success');
+            const newArtwork = artworks.find(a => a.id === artworkId);
+            if (!newArtwork) return;
+            
+            currentArtwork = newArtwork;
+            
+            const is2D = currentArtwork.type === '2d';
+            
+            // Update modal content
+            document.getElementById('modal-title').textContent = currentArtwork.title || 'Untitled';
+            document.getElementById('modal-artist').textContent = currentArtwork.artist || 'Unknown Artist';
+            document.getElementById('modal-type').textContent = is2D ? '2D Painting' : '3D Sculpture';
+            document.getElementById('modal-medium').textContent = currentArtwork.medium || 'Digital';
+            document.getElementById('modal-style').textContent = currentArtwork.style || 'Contemporary';
+            document.getElementById('modal-price').textContent = currentArtwork.price || 'Price on request';
+            document.getElementById('modal-width').textContent = currentArtwork.dimensions?.width || '-';
+            document.getElementById('modal-height').textContent = currentArtwork.dimensions?.height || '-';
+            document.getElementById('modal-depth').textContent = currentArtwork.dimensions?.depth || '-';
+            
+            // Update viewer container
+            const viewerContainer = document.getElementById('modal-viewer-container');
+            if (is2D) {
+                viewerContainer.innerHTML = `
+                    <model-viewer
+                        id="modal-viewer"
+                        src="${currentArtwork.model}"
+                        poster="${currentArtwork.image}"
+                        alt="${currentArtwork.title}"
+                        camera-controls
+                        shadow-intensity="1"
+                        ar
+                        ar-modes="webxr scene-viewer quick-look"
+                        ar-scale="fixed"
+                    ></model-viewer>
+                    <div class="real-size-indicator">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 3H3v18h18V3zM9 3v18M15 3v18M3 9h18M3 15h18"/>
+                        </svg>
+                        <span id="real-size">${currentArtwork.dimensions.width} × ${currentArtwork.dimensions.height} cm</span>
+                    </div>
+                `;
+            } else {
+                viewerContainer.innerHTML = `
+                    <model-viewer
+                        id="modal-viewer"
+                        src="${currentArtwork.model}"
+                        alt="${currentArtwork.title}"
+                        auto-rotate
+                        camera-controls
+                        shadow-intensity="1"
+                        ar
+                        ar-modes="webxr scene-viewer quick-look"
+                        ar-scale="fixed"
+                    ></model-viewer>
+                    <div class="real-size-indicator">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 3H3v18h18V3zM9 3v18M15 3v18M3 9h18M3 15h18"/>
+                        </svg>
+                        <span id="real-size">${currentArtwork.dimensions.width} × ${currentArtwork.dimensions.height} × ${currentArtwork.dimensions.depth} cm</span>
+                    </div>
+                `;
+            }
+            
+            // Update shortlist button and comparison thumbnails
+            updateShortlistButton();
+            renderComparisonThumbnails();
+            
+            // Update delete button visibility
+            const deleteBtn = document.getElementById('modal-delete-btn');
+            if (deleteBtn) {
+                const isUserUploaded = currentArtwork.tags && currentArtwork.tags.includes('user-uploaded');
+                deleteBtn.style.display = isUserUploaded ? 'flex' : 'none';
+            }
+            
+            showToast(`Switched to "${currentArtwork.title}"`, 'success');
         }
         
         // Close modal
@@ -2294,6 +2440,53 @@
             document.getElementById('modal').classList.remove('active');
             document.body.style.overflow = '';
             currentArtwork = null;
+        }
+        
+        // Delete artwork from modal view (for user-uploaded artworks)
+        function deleteFromModal() {
+            if (!currentArtwork) return;
+            
+            // Check if it's a user-uploaded artwork
+            const isUserUploaded = currentArtwork.tags && currentArtwork.tags.includes('user-uploaded');
+            if (!isUserUploaded) {
+                showToast('Only user-uploaded artworks can be deleted', 'error');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete "' + currentArtwork.title + '"? This action cannot be undone.')) {
+                const artworkId = currentArtwork.id;
+                const artworkTitle = currentArtwork.title;
+                
+                // Remove from shortlist if present
+                const shortlistIndex = shortlist.indexOf(artworkId);
+                if (shortlistIndex > -1) {
+                    shortlist.splice(shortlistIndex, 1);
+                    localStorage.setItem('shortlist', JSON.stringify(shortlist));
+                }
+                
+                // Remove from artworks array
+                artworks = artworks.filter(a => a.id !== artworkId);
+                
+                // Remove from localStorage
+                let userArtworks = JSON.parse(localStorage.getItem('artspace_user_artworks') || '[]');
+                userArtworks = userArtworks.filter(a => a.id !== artworkId);
+                localStorage.setItem('artspace_user_artworks', JSON.stringify(userArtworks));
+                
+                // Close modal and refresh views
+                closeModal();
+                renderGallery(currentFilter);
+                
+                // Update shortlist UI if on shortlist tab
+                if (document.getElementById('tab-shortlist').classList.contains('active')) {
+                    renderShortlist();
+                }
+                
+                showToast('"' + artworkTitle + '" has been deleted', 'success');
+                
+                // Clear references
+                currentArtwork = null;
+                originalArtwork = null;
+            }
         }
         
         // Activate AR
